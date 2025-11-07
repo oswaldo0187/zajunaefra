@@ -1,0 +1,201 @@
+{{!
+    @template mod_imagecarousel/carousel
+
+    Plantilla para mostrar un carrusel de imágenes con Bootstrap.
+
+    Ejemplo de contexto (json):
+    {
+        "uniqid": "abc123", 
+        "interval": 8000,
+        "images": [
+            {
+                "index": 0,
+                "first": true,
+                "image": "ruta/imagen1.jpg",
+                "mobile_image": "ruta/imagen1_mobile.jpg",
+                "desktop_image": "ruta/imagen1_desktop.jpg",
+                "url": "http://ejemplo.com",
+                "text": "Texto de la imagen",
+                "text_position": "top-left",
+                "text_url": "http://ejemplo.com/texto",
+                "text_border_radius": "5px",
+                "text_padding": "10px",
+                "text_background": "#000000",
+                "text_color": "#FFFFFF", 
+                "text_size": "18px",
+                "text_style": {
+                    "bold": true,
+                    "italic": false,
+                    "underline": false
+                },
+                "text_position_custom": {
+                    "top": "10px",
+                    "left": "20px"
+                }
+            }
+        ],
+        "hasMultipleImages": true
+    }
+}}
+<div class="carousel-container">
+    <div id="carousel-{{uniqid}}" class="carousel slide" data-ride="carousel" data-interval="{{interval}}" data-wrap="true" data-touch="true">
+        
+        <div class="carousel-inner ic-carousel-inner">  {{!-- ← AÑADIDA ic-carousel-inner --}}
+            {{#images}}
+                <div class="carousel-item ic-carousel-item {{#first}}active{{/first}}">  {{!-- ← AÑADIDA ic-carousel-item --}}
+                    {{#url}}<a href="{{url}}" target="_blank" class="img-link">{{/url}}
+                        <picture>
+                            {{#desktop_image}}
+                            <source media="(min-width: 576px)" srcset="{{desktop_image}}">
+                            {{/desktop_image}}
+                            {{#mobile_image}}
+                            <source media="(max-width: 575px)" srcset="{{mobile_image}}">
+                            {{/mobile_image}}
+                            {{#desktop_image}}
+                            <img class="d-block w-100" src="{{desktop_image}}" alt="Slide {{index}}" loading="lazy">
+                            {{/desktop_image}}
+                            {{^desktop_image}}
+                            {{#mobile_image}}
+                            <img class="d-block w-100" src="{{mobile_image}}" alt="Slide {{index}}" loading="lazy">
+                            {{/mobile_image}}
+                            {{^mobile_image}}
+                            <img class="d-block w-100" src="{{image}}" alt="Slide {{index}}" loading="lazy">
+                            {{/mobile_image}}
+                            {{/desktop_image}}
+                        </picture>
+                    {{#url}}</a>{{/url}}
+                    
+                    {{!-- Bloque de texto adicional (sin cambios aquí) --}}
+                    {{#text}}
+                        <div class="carousel-text {{text_position}}" id="carousel-text-{{uniqid}}-{{index}}" style="
+                            {{#text_position_top}}--offset-y: {{.}}; {{/text_position_top}} 
+                            {{#text_position_right}}--offset-x: {{.}}; {{/text_position_right}}
+                            transform: var(--custom-transform, none);
+                        ">
+                            {{#text_url}}<a href="{{text_url}}" target="_blank" class="text-link">{{/text_url}}
+                                <div class="carousel-text-content" style="
+                                    {{#text_border_radius}}border-radius: {{text_border_radius}};{{/text_border_radius}} 
+                                    {{#text_padding}}padding: {{text_padding}};{{/text_padding}} 
+                                    {{#text_background}}background-color: {{text_background}};{{/text_background}} 
+                                    {{#text_color}}color: {{text_color}};{{/text_color}} 
+                                    {{#text_size}}font-size: {{text_size}};{{/text_size}} 
+                                    {{#text_style_bold}}font-weight: bold;{{/text_style_bold}} 
+                                    {{#text_style_italic}}font-style: italic;{{/text_style_italic}} 
+                                    {{#text_style_underline}}text-decoration: underline;{{/text_style_underline}} 
+                                    {{#text_color_opacity}}opacity: {{text_color_opacity}}%;{{/text_color_opacity}}
+                                    {{#text_background_opacity}}background-color: rgba({{text_background}}, {{text_background_opacity}}%);{{/text_background_opacity}}">
+                                    {{text}}
+                                </div>
+                            {{#text_url}}</a>{{/text_url}}
+                        </div>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                var textElement = document.getElementById('carousel-text-{{uniqid}}-{{index}}');
+                                if (textElement) {
+                                    {{#text_position_top}}
+                                    textElement.style.marginTop = "{{.}}";
+                                    {{/text_position_top}}
+                                    {{#text_position_right}}
+                                    if (textElement.classList.contains('top-right') || 
+                                        textElement.classList.contains('bottom-right') || 
+                                        textElement.classList.contains('center-right')) {
+                                        textElement.style.marginRight = "{{.}}";
+                                    } else if (textElement.classList.contains('center')) {
+                                        var offsetX = "{{.}}".replace('px','').replace('em','').replace('rem','');
+                                        var isNegative = offsetX.startsWith('-');
+                                        if (isNegative) {
+                                            offsetX = offsetX.substring(1);
+                                        }
+                                        var unit = "{{.}}".replace(/[0-9.-]/g, '') || 'px';
+                                        var directionFactor = isNegative ? -1 : 1;
+                                        textElement.style.transform = "translate(calc(-50% + " + (directionFactor * offsetX) + unit + "), -50%)";
+                                    }
+                                    {{/text_position_right}}
+                                }
+                            });
+                        </script>
+                    {{/text}}
+                </div>
+            {{/images}}
+        </div>
+        
+        {{#hasMultipleImages}}
+            <a class="carousel-control-prev" href="#carousel-{{uniqid}}" role="button" data-slide="prev" data-touch="true">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Anterior</span>
+            </a>
+            <a class="carousel-control-next" href="#carousel-{{uniqid}}" role="button" data-slide="next" data-touch="true">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Siguiente</span>
+            </a>
+        {{/hasMultipleImages}}
+
+        {{#hasMultipleImages}}
+            <ol class="carousel-indicators">
+                {{#images}}
+                <li data-target="#carousel-{{uniqid}}" data-slide-to="{{index}}" {{#first}}class="active"{{/first}} style="cursor: pointer;"></li>
+                {{/images}}
+            </ol>
+        {{/hasMultipleImages}}
+    </div>
+</div>
+
+
+<!-- Los estilos se cargan desde el archivo styles.css -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Asegurar que los estilos del carrusel se aplican correctamente
+        var carousel = document.getElementById('carousel-{{uniqid}}');
+        if (carousel) {
+            // Inicialización de Bootstrap Carousel si es necesario
+            if (typeof jQuery !== 'undefined' && typeof jQuery.fn.carousel !== 'undefined') {
+                jQuery(carousel).carousel({
+                    interval: {{interval}},
+                    wrap: true,
+                    keyboard: true,
+                    touch: true
+                });
+            } else if (typeof bootstrap !== 'undefined' && typeof bootstrap.Carousel !== 'undefined') {
+                new bootstrap.Carousel(carousel, {
+                    interval: {{interval}},
+                    wrap: true,
+                    keyboard: true,
+                    touch: true
+                });
+            }
+            
+            // Ajustar tamaño de imágenes y contenedor
+            function adjustCarouselSize() {
+                var carouselContainer = carousel.closest('.carousel-container');
+                var carouselItems = carousel.querySelectorAll('.carousel-item');
+                var carouselImages = carousel.querySelectorAll('.carousel-item img');
+                
+                // Ajustar altura de cada imagen según su proporción
+                carouselImages.forEach(function(img) {
+                    img.addEventListener('load', function() {
+                        var parent = img.closest('.carousel-item');
+                        if (img.naturalHeight > img.naturalWidth) {
+                            // Para imágenes verticales, ajustar altura máxima
+                            img.style.maxHeight = '70vh';
+                            img.style.width = 'auto';
+                        } else {
+                            // Para imágenes horizontales, ajustar ancho máximo
+                            img.style.width = '100%';
+                            img.style.maxHeight = '70vh';
+                        }
+                    });
+                    
+                    // Ejecutar para imágenes ya cargadas
+                    if (img.complete) {
+                        var event = new Event('load');
+                        img.dispatchEvent(event);
+                    }
+                });
+            }
+            
+            // Ejecutar ajustes al cargar y al redimensionar
+            adjustCarouselSize();
+            window.addEventListener('resize', adjustCarouselSize);
+        }
+    });
+</script>

@@ -1,0 +1,500 @@
+/* ======================================
+   CARRUSEL DE IMÁGENES - ESTILOS PRINCIPALES
+   ====================================== */
+
+/* ========= 1. CONTENEDORES PRINCIPALES ========= */
+/* Contenedor principal del carrusel */
+.carousel.slide {
+    position: relative;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    margin-bottom: 2.5em;
+}
+
+/* Contenedor interno que mantiene las diapositivas -- ALTERA CODIGO DE ORIGEN */
+ .ic-carousel-inner {
+    border-radius: 0.75em;
+    overflow: hidden;
+    height: auto;
+    position: relative; 
+    aspect-ratio: 8/3;  
+} 
+
+/* Contenedor global que envuelve todo el carrusel */
+.carousel-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    overflow: hidden;
+    position: relative;
+}
+
+/* ========= 2. ELEMENTOS DE DIAPOSITIVAS ========= */
+/* Cada elemento individual del carrusel (diapositiva) -- ALTERA CODIGO DE ORIGEN */
+.ic-carousel-item {
+    position: relative;
+    display: none;
+    width: 100% !important;
+    height: 100% !important;
+    margin-right: -100%;
+    transition: transform 0.6s ease-in-out;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 8/3;
+    overflow: hidden;
+}  
+
+/* Estados de visualización para las diapositivas */
+.carousel-item.active,
+.carousel-item-next,
+.carousel-item-prev {
+    display: block !important;
+}
+
+/* Estilo para las imágenes dentro de cada diapositiva */
+.carousel-item img {
+    width: 100%;
+    height: 100%; /* Cambiamos a 100% para que ocupe todo el espacio del contenedor */
+    object-fit: cover; /* Cambiamos a cover para que cubra todo el área manteniendo proporción */
+    display: block;
+    margin: 0 auto;
+}
+
+/* ========= 3. TEXTO DEL CARRUSEL ========= */
+/* Contenedor principal del texto que aparece sobre las imágenes */
+.carousel-text {
+    position: absolute;
+    max-width: 90%;
+    z-index: 5;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    box-sizing: border-box;
+    font-size: 1em;
+    /* Variables para ajuste fino de posición con valores por defecto */
+    --offset-x: 0px;
+    --offset-y: 0px;
+    --custom-transform: none;
+}
+
+/* Estilo para los contenedores internos de texto */
+.carousel-text > div,
+.carousel-text-content {
+    display: inline-block;
+    max-width: 100%;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    padding: 0.625em;
+    border-radius: 0.313em;
+    line-height: 1.4;
+    transition: font-size 0.2s ease;
+}
+
+/* Estilo específico para el contenido de texto */
+.carousel-text-content {
+    white-space: normal;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-height: 80vh;
+}
+
+/* ========= 4. POSICIONAMIENTO DEL TEXTO ========= */
+/* Texto en la esquina superior izquierda */
+.carousel-text.top-left {
+    top: 0.938em;
+    left: 0.938em;
+}
+
+/* Texto en la esquina superior derecha */
+.carousel-text.top-right {
+    top: 0.938em;
+    right: 0.938em;
+}
+
+/* Texto centrado en la parte superior */
+.carousel-text.top-center {
+    top: 0.938em;
+    left: 50%;
+    --custom-transform: translateX(-50%);
+}
+
+/* Texto en la esquina inferior izquierda */
+.carousel-text.bottom-left {
+    bottom: 0.938em;
+    left: 0.938em;
+}
+
+/* Texto en la esquina inferior derecha */
+.carousel-text.bottom-right {
+    bottom: 0.938em;
+    right: 0.938em;
+}
+
+/* Texto centrado en la parte inferior */
+.carousel-text.bottom-center {
+    bottom: 0.938em;
+    left: 50%;
+    --custom-transform: translateX(-50%);
+}
+
+/* Texto centrado tanto horizontal como verticalmente */
+.carousel-text.center {
+    top: 50%;
+    left: 50%;
+    --custom-transform: translate(-50%, -50%);
+}
+
+/* Texto centrado verticalmente a la izquierda */
+.carousel-text.center-left {
+    top: 50%;
+    left: 0.938em;
+    --custom-transform: translateY(-50%);
+}
+
+/* Texto centrado verticalmente a la derecha */
+.carousel-text.center-right {
+    top: 50%;
+    right: 0.938em;
+    --custom-transform: translateY(-50%);
+}
+
+/* ========= 5. CONTROLES DE NAVEGACIÓN ========= */
+/* Estilos base para los botones de navegación anterior/siguiente */
+.carousel-control-prev,
+.carousel-control-next {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 15%;
+    padding: 0;
+    color: #fff;
+    text-align: center;
+    background: transparent;
+    border: 0;
+    opacity: 0.5;
+    transition: all 0.15s ease;
+}
+
+/* Control de navegación anterior (izquierda) */
+.carousel-control-prev {
+    left: 0;
+    border-radius: 0.75em 0 0 0.75em;
+}
+
+/* Control de navegación siguiente (derecha) */
+.carousel-control-next {
+    right: 0;
+    border-radius: 0 0.75em 0.75em 0;
+}
+
+/* Estados hover para controles de navegación */
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+    color: #fff;
+    text-decoration: none;
+    outline: 0;
+    opacity: 0.9;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Iconos para los controles de navegación */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 1.5rem 1.5rem;
+    transition: all 0.15s ease;
+}
+
+/* Estados hover para los iconos de navegación */
+.carousel-control-prev:hover .carousel-control-prev-icon,
+.carousel-control-next:hover .carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.5);
+    transform: scale(1.1);
+}
+
+/* ========= 6. INDICADORES DE NAVEGACIÓN ========= */
+/* Contenedor para los indicadores de navegación por puntos */
+.carousel-indicators {
+    position: absolute;
+    bottom: -1.75em;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: center;
+    background: transparent;
+}
+
+/* Estilo para cada indicador individual (punto) */
+.carousel-indicators li {
+    width: 0.75em;
+    height: 0.75em;
+    border-radius: 100%;
+    background-color: #39a900;
+    border: 0 solid #39a900;
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+}
+
+/* ========= 7. CLASES ESPECÍFICAS POR TIPO DE IMAGEN ========= */
+/* Estilos para imágenes optimizadas para diferentes dispositivos */
+.mobile-view,
+.desktop-view,
+.desktop-on-mobile {
+    width: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    height: auto;
+}
+
+/* Ajuste específico para imágenes de escritorio vistas en móvil */
+.desktop-on-mobile {
+    object-position: center;
+}
+
+/* Eliminación de bordes redondeados para imágenes en actividades */
+.activity-item .activity-altcontent img {
+    border-radius: 0;
+}
+
+/* ========= 8. ELEMENTOS ADICIONALES ========= */
+/* Deshabilitar comportamiento de enlaces específicos del carrusel */
+a.aalink.stretched-link[href*="/mod/imagecarousel/view.php"],
+a.aalink.stretched-link[href*="/mod/imagecarousel/view.php"]:after {
+    text-decoration: none;
+    pointer-events: none;
+}
+
+/* Estilo para iconos de acción */
+.action-icon {
+    margin: 0 0.125em;
+    text-decoration: none;
+}
+
+/* Alineación vertical para imágenes dentro de iconos de acción */
+.action-icon img {
+    vertical-align: middle;
+}
+
+/* ======================================
+   MEDIA QUERIES - DISEÑO RESPONSIVE
+   ====================================== */
+
+/* ========= PANTALLAS GRANDES (≥1024px) ========= */
+@media (min-width: 1024px) {
+    /* Altura optimizada de imágenes para pantallas grandes */
+    .carousel-item img {
+        /* max-height: calc(100vh - 9.375em); */ /* Eliminamos esta restricción */
+        height: 100% !important; /* Aseguramos que ocupe todo el espacio */
+        width: 100% !important;
+        min-width: 100%;
+        object-fit: cover; /* Cambiamos a cover */
+        object-position: center;
+    }
+    
+    /* Texto ligeramente más grande para pantallas amplias */
+    .carousel-text {
+        font-size: 1.1em;
+    }
+    /* Reducción del espaciado y bordes del texto */
+    .carousel-text > div {
+        padding: 0.7em;
+        border-radius: 0.25em;
+    }
+}
+
+/* ========= TABLETS Y PANTALLAS MEDIANAS (≤1024px) ========= */
+@media (max-width: 1024px) {
+
+    /* Ajuste de altura para imágenes en pantallas medianas */
+    .carousel-item img {
+        /* max-height: calc(100vh - 9.375em); */
+        height: 100% !important;
+        width: 100% !important;
+        min-width: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+    
+    /* Ajustes de texto para pantallas medianas */
+    .carousel-text {
+        font-size: 0.9em;
+        max-width: 75%;
+    }
+    /* Reducción del espaciado y bordes del texto */
+    .carousel-text > div {
+        padding: 0.7em;
+        border-radius: 0.25em;
+    }
+    
+    /* Ajuste de ancho para los controles de navegación */
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 2.5em;
+    }
+    
+    /* Ajustes para los iconos de navegación */
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        padding: 0.625em;
+    }
+}
+
+/* ========= TABLETS PEQUEÑAS Y MÓVILES GRANDES (≤768px) ========= */
+@media (max-width: 768px) {
+    /* Altura máxima de imágenes para tablets pequeñas */
+    .carousel-item img {
+        /* max-height: calc(100vh - 9.375em); */
+        height: 100% !important;
+        width: 100% !important;
+        min-width: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+    
+    /* Tamaño y anchura de texto reducido para tablets */
+    .carousel-text {
+        font-size: 0.8em;
+        max-width: 80%;
+    }
+    
+    /* Reducción del espaciado y bordes del texto */
+    .carousel-text > div {
+        padding: 0.625em;
+        border-radius: 0.25em;
+    }
+    
+    /* Controles de navegación más pequeños */
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 1.875em;
+    }
+    
+    /* Iconos de navegación más pequeños */
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        padding: 0.5em;
+    }
+    
+    /* Ajustes específicos para orientación portrait (vertical) */
+    @media (orientation: portrait) {
+        /* Ajustes de posicionamiento para textos */
+        .carousel-text.top-left, 
+        .carousel-text.bottom-left,
+        .carousel-text.center-left {
+            left: 0.625em;
+        }
+        
+        .carousel-text.top-right, 
+        .carousel-text.bottom-right,
+        .carousel-text.center-right {
+            right: 0.625em;
+        }
+        
+        .carousel-text.top-center,
+        .carousel-text.bottom-center {
+            width: 80%;
+        }
+        
+        .carousel-text.top-left,
+        .carousel-text.top-right,
+        .carousel-text.top-center {
+            top: 0.625em;
+        }
+        
+        .carousel-text.bottom-left,
+        .carousel-text.bottom-right,
+        .carousel-text.bottom-center {
+            bottom: 0.625em;
+        }
+    }
+}
+
+/* ========= MÓVILES MEDIANOS (≤576px) ========= */
+@media (max-width: 576px) {
+    /* Altura reducida para imágenes en móviles medianos */
+
+    .carousel-item img {
+        /* max-height: calc(100vh - 9.375em); */
+        height: 100% !important;
+        width: 100% !important;
+        min-width: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+    
+    /* Texto más pequeño y ancho ajustado */
+    .carousel-text {
+        font-size: 0.65em;
+        max-width: 85%;
+    }
+    
+    /* Menor espaciado para el texto */
+    .carousel-text > div {
+        padding: 0.5em;
+        border-radius: 0.25em;
+    }
+    
+    /* Controles de navegación más estrechos */
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 1.563em;
+    }
+    
+    /* Iconos de control más pequeños */
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        padding: 0.375em;
+    }
+}
+
+/* ========= MÓVILES PEQUEÑOS (≤480px) ========= */
+@media (max-width: 480px) {
+    /* Ajuste especial de altura para móviles pequeños */
+    
+    .carousel-item img {
+        /* max-height: calc(100vh - 9.375em); */
+        height: 100% !important;
+        width: 100% !important;
+        min-width: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+    
+    /* Ancho máximo y tamaño reducido para el texto */
+    .carousel-text {
+        max-width: 90%;
+        font-size: 0.5em;
+    }
+    
+    /* Espaciado mínimo para el texto */
+    .carousel-text > div {
+        padding: 0.313em;
+    }
+    
+    /* Controles de navegación mucho más estrechos */
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 1.25em;
+    }
+    
+    /* Iconos de control muy reducidos */
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        padding: 0.25em;
+    }
+}

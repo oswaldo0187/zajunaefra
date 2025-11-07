@@ -1,0 +1,14 @@
+# Local IDE/editor
+.vscode/
+.VSCodeCounter/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Sonar and scanner temp
+.scannerwork/
+**/.scannerwork/
+
+# Node build artifacts
+node_modules/
