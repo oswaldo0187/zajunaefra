@@ -40,19 +40,42 @@ class dates extends activity_dates {
      * Returns a list of important dates in mod_forum
      *
      * @return array
-     */
-    protected function get_dates(): array {
-        $duedate = $this->cm->customdata['duedate'] ?? null;
-        $dates = [];
+     */   
+   
 
-        if ($duedate) {
-            $dates[] = [
-                'dataid' => 'duedate',
-                'label' => get_string('activitydate:due', 'mod_forum'),
-                'timestamp' => (int) $duedate,
-            ];
-        }
+protected function get_dates(): array {
+    $duedate = $this->cm->customdata['duedate'] ?? null;
+    $allowpostsfrom = $this->cm->customdata['allowpostsfrom'] ?? null;
+    $cutoffdate = $this->cm->customdata['cutoffdate'] ?? null;
 
-        return $dates;
+    $dates = [];
+
+    if ($allowpostsfrom) {
+        $dates[] = [
+            'dataid' => 'allowpostsfrom',
+            'label' => get_string('allowpostsfrom', 'mod_forum'),
+            'timestamp' => (int) $allowpostsfrom,
+        ];
     }
+
+    if ($duedate) {
+        $dates[] = [
+            'dataid' => 'duedate',
+            'label' => get_string('duedate', 'mod_forum'),
+            'timestamp' => (int) $duedate,
+        ];
+    }
+
+    if ($cutoffdate) {
+        $dates[] = [
+            'dataid' => 'cutoffdate',
+            'label' => get_string('cutoffdate', 'mod_forum'),
+            'timestamp' => (int) $cutoffdate,
+        ];
+    }
+
+    return $dates;
+}
+
+
 }

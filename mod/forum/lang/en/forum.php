@@ -23,7 +23,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['activitydate:due'] = 'Due:';
+$string['activitydate:due'] = 'Fecha de entrega';
 $string['activityoverview'] = 'There are new forum posts';
 $string['actionsforgraderinterface'] = 'Actions for the grader interface';
 $string['actionsforpost'] = 'Actions for post';
@@ -149,7 +149,7 @@ $string['created'] = 'Created';
 $string['crontask'] = 'Forum mailings and maintenance jobs';
 $string['cutoffdate'] = 'Cut-off date';
 $string['cutoffdate_help'] = 'If set, the forum will not accept posts after this date.';
-$string['cutoffdatereached'] = 'The cut-off date for posting to this forum is reached so you can no longer post to it.';
+$string['cutoffdatereached'] = 'Se ha alcanzado la fecha de entrega máxima para publicar en este foro, por lo que ya no puede publicar en él.';
 $string['cutoffdatevalidation'] = 'The cut-off date cannot be earlier than the due date.';
 $string['delete'] = 'Delete';
 $string['deleteddiscussion'] = 'The discussion topic has been deleted';
@@ -707,8 +707,10 @@ $string['subscriptions'] = 'Subscriptions';
 $string['tagarea_forum_posts'] = 'Forum posts';
 $string['tagsdeleted'] = 'Forum tags have been deleted';
 $string['thisforumisthrottled'] = 'This forum has a limit to the number of forum postings you can make in a given time period - this is currently set at {$a->blockafter} posting(s) in {$a->blockperiod}';
-$string['thisforumisdue'] = 'The due date for posting to this forum was {$a}.';
-$string['thisforumhasduedate'] = 'The due date for posting to this forum is {$a}.';
+$string['thisforumisdue'] = 'La fecha de entrega para publicar en este foro fue {$a}.';
+$string['thisforumhasduedate'] = 'La fecha de entrega para publicar en este foro es {$a}.';
+$string['thisforumiscutoff'] = 'La fecha límite para publicar en este foro fue {$a}.';
+$string['thisforumhascutoffdate'] = 'La fecha límite para publicar en este foro es {$a}.';
 $string['timed'] = 'Timed';
 $string['timeddiscussion'] = 'Timed discussion';
 $string['timedhidden'] = 'Timed status: Hidden from students';
@@ -789,6 +791,15 @@ $string['nousersmatch'] = 'No user(s) found for given criteria';
 $string['showmoreusers'] = 'Show more users';
 $string['viewconversation'] = 'View discussion';
 $string['viewgrades'] = 'View grades';
+$string['allowpostsfrom'] = 'Permitir entregas desde';
+$string['allowpostsfrom_help'] = 'Fecha a partir de la cual los estudiantes pueden comenzar a publicar en el foro.';
+$string['nopostsbefore'] = 'No puede publicar en este foro antes del {$a}.';
+$string['nopostsbefore_desc'] = '🚫 Publicación no permitida todavía';
+$string['nopostsbeforeaccess'] = 'Este foro estará disponible para usted a partir del {$a}.';
+$string['error_allowpostsfrom_after_duedate'] = 'La fecha de "Permitir entregas desde" no puede ser posterior a la fecha de entrega.';
+$string['error_allowpostsfrom_after_cutoffdate'] = 'La fecha de "Permitir entregas desde" no puede ser posterior a la fecha límite.';
+$string['error_duedate_after_cutoffdate'] = 'La fecha de entrega no puede ser posterior a la fecha límite.';
+
 
 // Deprecated since Moodle 4.0.
 $string['postmailinfolink'] = 'This is a copy of a message posted in {$a->coursename}.

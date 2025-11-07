@@ -189,5 +189,22 @@ function xmldb_forum_upgrade($oldversion) {
     // Automatically generated Moodle v4.3.0 release upgrade line.
     // Put any upgrade step following this.
 
+    if ($oldversion < 2025070100) {
+
+        // Creamos un objeto xmldb_table para la tabla forum.
+        $table = new xmldb_table('forum');
+
+        // Definimos el nuevo campo 'allowpostsfrom'.
+        $field = new xmldb_field('allowpostsfrom', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'forcesubscribe');
+
+        // Si el campo no existe, lo agregamos.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Indicamos que la actualización llegó correctamente a este punto.
+        upgrade_mod_savepoint(true, 2025070100, 'forum');
+    }
+
     return true;
 }

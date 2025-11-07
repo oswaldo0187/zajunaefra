@@ -53,6 +53,24 @@ if ($cmid) {
     if (empty($forum)) {
         throw new \moodle_exception('Unable to find forum with cmid ' . $cmid);
     }
+
+
+    // 🚨 Primero forzamos login para obtener contexto de usuario y curso.
+    require_login($forum->get_course_record(), false, $forum->get_course_module_record());
+    $context = context_module::instance($forum->get_course_module_record()->id);
+
+    // 🚨 Obtener valor de allowpostsfrom directamente.
+    $rawforum = $DB->get_record('forum', ['id' => $forum->get_id()], '*', MUST_EXIST);
+
+    // 🚨 Bloquear solo si la fecha aún no se cumple y el usuario NO tiene permisos para gestionar actividades.
+    if ($rawforum->allowpostsfrom && time() < $rawforum->allowpostsfrom &&
+        !has_capability('mod/forum:managesubscriptions', $context) &&
+        !is_siteadmin()) {
+        throw new \moodle_exception('nopostsbeforeaccess', 'forum', '', userdate($rawforum->allowpostsfrom));
+
+    }
+
+
 } else {
     $forum = $forumvault->get_from_id($forumid);
     if (empty($forum)) {

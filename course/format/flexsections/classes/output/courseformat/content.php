@@ -42,6 +42,7 @@ class content extends \core_courseformat\output\local\content {
      * @return string
      */
     public function get_template_name(\renderer_base $renderer): string {
+        // Mdlcode uses: template 'format_flexsections/local/content'.
         return 'format_flexsections/local/content';
     }
 
@@ -52,7 +53,6 @@ class content extends \core_courseformat\output\local\content {
      * @return \stdClass data context for a mustache template
      */
     public function export_for_template(\renderer_base $output) {
-        /** @var \stdClass $data */
         $data = parent::export_for_template($output);
 
         // If we are on course view page for particular section.
@@ -64,14 +64,14 @@ class content extends \core_courseformat\output\local\content {
             $section = $this->format->get_section($this->format->get_viewed_section());
             if ($section->parent) {
                 $sr = $this->format->find_collapsed_parent($section->parent);
-                $url = $this->format->get_view_url($section->section, array('sr' => $sr));
+                $url = $this->format->get_view_url($section->section, ['sr' => $sr]);
                 $data->backtosection = [
                     'url' => $url->out(false),
-                    'sectionname' => $this->format->get_section_name($section->parent)
+                    'sectionname' => $this->format->get_section_name($section->parent),
                 ];
             } else {
                 $sr = 0;
-                $url = $this->format->get_view_url($section->section, array('sr' => $sr));
+                $url = $this->format->get_view_url($section->section, ['sr' => $sr]);
                 $context = \context_course::instance($this->format->get_courseid());
                 $data->backtocourse = [
                     'url' => $url->out(false),
@@ -146,8 +146,19 @@ class content extends \core_courseformat\output\local\content {
      * @return \section_info[] an array of section_info to display
      */
     private function get_sections_to_display(course_modinfo $modinfo): array {
+        $singlesectionid = $this->format->get_sectionid();
+        if ($singlesectionid) {
+            return [
+                $modinfo->get_section_info_by_id($singlesectionid),
+            ];
+        }
+
         $viewedsection = $this->format->get_viewed_section();
         return array_values(array_filter($modinfo->get_section_info_all(), function($s) use ($viewedsection) {
+            global $CFG;
+            if ((int)$CFG->branch >= 405 && $s->is_delegated()) {
+                return false;
+            }
             return (!$s->section) ||
                 (!$viewedsection && !$s->parent && $this->format->is_section_visible($s)) ||
                 ($viewedsection && $s->section == $viewedsection);

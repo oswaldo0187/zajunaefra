@@ -36,6 +36,7 @@ use core_user;
 use moodle_exception;
 use moodle_url;
 use pix_icon;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -73,10 +74,10 @@ class authcode extends base {
 
         return [
             [
-                'url' => new moodle_url('/auth/oidc/'),
+                'url' => new moodle_url('/auth/oidc/', ['source' => 'loginpage']),
                 'icon' => $icon,
                 'name' => strip_tags(format_text($this->config->opname)),
-            ]
+            ],
         ];
     }
 
@@ -108,6 +109,27 @@ class authcode extends base {
     public function handleredirect() {
         global $CFG, $SESSION;
 
+        $error = optional_param('error', '', PARAM_TEXT);
+        $errordescription = optional_param('error_description', '', PARAM_TEXT);
+        $silentloginmode = get_config('auth_oidc', 'silentloginmode');
+        $selectaccount = false;
+        if ($silentloginmode) {
+            if ($error == 'login_required') {
+                // If silent login mode is enabled and the error is 'login_required', redirect to the login page.
+                $loginpageurl = new moodle_url('/login/index.php', ['noredirect' => 1]);
+                redirect($loginpageurl);
+                die();
+            } else if ($error == 'interaction_required') {
+                if (strpos($errordescription, 'multiple user identities') !== false) {
+                    $selectaccount = true;
+                } else {
+                    $loginpageurl = new moodle_url('/login/index.php', ['noredirect' => 1]);
+                    redirect($loginpageurl);
+                    die();
+                }
+            }
+        }
+
         if (get_config('auth_oidc', 'idptype') == AUTH_OIDC_IDP_TYPE_MICROSOFT_IDENTITY_PLATFORM) {
             $adminconsent = optional_param('admin_consent', '', PARAM_TEXT);
             if ($adminconsent) {
@@ -127,7 +149,7 @@ class authcode extends base {
         $promptlogin = (bool)optional_param('promptlogin', 0, PARAM_BOOL);
         $promptaconsent = (bool)optional_param('promptaconsent', 0, PARAM_BOOL);
         $justauth = (bool)optional_param('justauth', 0, PARAM_BOOL);
-        if (!empty($state)) {
+        if (!empty($state) && $selectaccount === false) {
             $requestparams = [
                 'state' => $state,
                 'code' => $code,
@@ -137,7 +159,7 @@ class authcode extends base {
             $this->handleauthresponse($requestparams);
         } else {
             if (isloggedin() && !isguestuser() && empty($justauth) && empty($promptaconsent)) {
-                if (isset($SESSION->wantsurl) and (strpos($SESSION->wantsurl, $CFG->wwwroot) === 0)) {
+                if (isset($SESSION->wantsurl) && (strpos($SESSION->wantsurl, $CFG->wwwroot) === 0)) {
                     $urltogo = $SESSION->wantsurl;
                     unset($SESSION->wantsurl);
                 } else {
@@ -155,7 +177,7 @@ class authcode extends base {
             if ($justauth === true) {
                 $stateparams['justauth'] = true;
             }
-            $this->initiateauthrequest($promptlogin, $stateparams, $extraparams);
+            $this->initiateauthrequest($promptlogin, $stateparams, $extraparams, $selectaccount);
         }
     }
 
@@ -186,10 +208,12 @@ class authcode extends base {
      * @param bool $promptlogin Whether to prompt for login or use existing session.
      * @param array $stateparams Parameters to store as state.
      * @param array $extraparams Additional parameters to send with the OIDC request.
+     * @param bool $selectaccount Whether to prompt the user to select an account.
      */
-    public function initiateauthrequest($promptlogin = false, array $stateparams = array(), array $extraparams = array()) {
+    public function initiateauthrequest($promptlogin = false, array $stateparams = [], array $extraparams = [],
+            bool $selectaccount = false) {
         $client = $this->get_oidcclient();
-        $client->authrequest($promptlogin, $stateparams, $extraparams);
+        $client->authrequest($promptlogin, $stateparams, $extraparams, $selectaccount);
     }
 
     /**
@@ -205,7 +229,9 @@ class authcode extends base {
     }
 
     /**
-     * @param array $authparams
+     * Handles the response for certificate-based admin consent authorization.
+     *
+     * @param array $authparams Array of authorization parameters.
      * @return void
      * @throws moodle_exception
      */
@@ -251,7 +277,7 @@ class authcode extends base {
                 'authparams' => $authparams,
                 'tokenparams' => $tokenparams,
                 'statedata' => $additionaldata,
-            ]
+            ],
         ];
         $event = user_authed::create($eventdata);
         $event->trigger();
@@ -327,7 +353,7 @@ class authcode extends base {
                     'authparams' => $authparams,
                     'tokenparams' => $tokenparams,
                     'statedata' => $additionaldata,
-                ]
+                ],
             ];
             $event = user_authed::create($eventdata);
             $event->trigger();
@@ -339,22 +365,13 @@ class authcode extends base {
         if (isloggedin() && !isguestuser() && (empty($tokenrec) || (isset($USER->auth) && $USER->auth !== 'oidc'))) {
             // If user is already logged in and trying to link Microsoft 365 account or use it for OIDC.
             // Check if that Microsoft 365 account already exists in moodle.
-            if (get_config('auth_oidc', 'idptype') == AUTH_OIDC_IDP_TYPE_MICROSOFT_IDENTITY_PLATFORM) {
-                $upn = $idtoken->claim('preferred_username');
-                if (empty($upn)) {
-                    $upn = $idtoken->claim('email');
-                }
-            } else {
-                $upn = $idtoken->claim('upn');
-                if (empty($upn)) {
-                    $upn = $idtoken->claim('unique_name');
-                }
-            }
+            $oidcusername = $this->get_oidc_username_from_token_claim($idtoken);
+
             $userrec = $DB->count_records_sql('SELECT COUNT(*)
                                                  FROM {user}
                                                 WHERE username = ?
                                                       AND id != ?',
-                    [$upn, $USER->id]);
+                    [$oidcusername, $USER->id]);
 
             if (!empty($userrec)) {
                 if (empty($additionaldata['redirect'])) {
@@ -379,7 +396,11 @@ class authcode extends base {
             // Otherwise it's a user logging in normally with OIDC.
             $this->handlelogin($oidcuniqid, $authparams, $tokenparams, $idtoken);
             if ($USER->id && $DB->record_exists('auth_oidc_token', ['userid' => $USER->id])) {
-                $DB->set_field('auth_oidc_token', 'sid', $sid, ['userid' => $USER->id]);
+                $authoidsidrecord = new stdClass();
+                $authoidsidrecord->userid = $USER->id;
+                $authoidsidrecord->sid = $sid;
+                $authoidsidrecord->timecreated = time();
+                $DB->insert_record('auth_oidc_sid', $authoidsidrecord);
             }
             redirect(core_login_get_return_url());
         }
@@ -480,7 +501,7 @@ class authcode extends base {
     /**
      * Determines whether the given Microsoft Entra ID UPN is already matched to a Moodle user (and has not been completed).
      *
-     * @param $entraidupn
+     * @param string $entraidupn The Microsoft Entra ID UPN to check for a match.
      * @return false|stdClass Either the matched Moodle user record, or false if not matched.
      */
     protected function check_for_matched($entraidupn) {
@@ -538,24 +559,10 @@ class authcode extends base {
         }
 
         // Find the latest real Microsoft username.
-        // Determine remote username depending on IdP type, or fall back to standard 'sub'.
-        if (get_config('auth_oidc', 'idptype') == AUTH_OIDC_IDP_TYPE_MICROSOFT_IDENTITY_PLATFORM) {
-            $oidcusername = $idtoken->claim('preferred_username');
-            if (empty($oidcusername)) {
-                $oidcusername = $idtoken->claim('email');
-            }
-        } else {
-            $oidcusername = $idtoken->claim('upn');
-            if (empty($oidcusername)) {
-                $oidcusername = $idtoken->claim('unique_name');
-            }
-        }
-        if (empty($oidcusername)) {
-            $oidcusername = $idtoken->claim('sub');
-        }
+        $oidcusername = $this->get_oidc_username_from_token_claim($idtoken);
 
         $usernamechanged = false;
-        if ($oidcusername && $tokenrec && strtolower($oidcusername) !== strtolower($tokenrec->oidcusername)) {
+        if ($oidcusername && $tokenrec && strtolower($oidcusername) !== strtolower($tokenrec->useridentifier)) {
             $usernamechanged = true;
         }
 
@@ -570,7 +577,7 @@ class authcode extends base {
             }
         }
 
-        $supportupnchangeconfig = get_config('local_o365', 'support_upn_change');
+        $supportuseridentifierchangeconfig = get_config('local_o365', 'support_user_identifier_change');
 
         if (!empty($tokenrec)) {
             // Already connected user.
@@ -592,7 +599,7 @@ class authcode extends base {
                 }
                 $tokenrec->userid = $user->id;
                 if ($usernamechanged) {
-                    $tokenrec->oidcusername = strtolower($oidcusername);
+                    $tokenrec->useridentifier = strtolower($oidcusername);
                 }
                 $DB->update_record('auth_oidc_token', $tokenrec);
             } else {
@@ -610,7 +617,7 @@ class authcode extends base {
 
                 // Handle username change - update token, update connection.
                 if ($usernamechanged) {
-                    if ($supportupnchangeconfig != 1) {
+                    if ($supportuseridentifierchangeconfig != 1) {
                         // Username change is not supported, throw exception.
                         throw new moodle_exception('errorupnchangeisnotsupported', 'local_o365', null, null, '2');
                     }
@@ -620,14 +627,14 @@ class authcode extends base {
                         throw new moodle_exception('erroruserwithusernamealreadyexists', 'auth_oidc', null, null, '2');
                     } else {
                         // Username does not exist:
-                        //  1. can change Moodle account username (if the user uses auth_oidc),
-                        //  2. can change token record.
+                        // 1. can change Moodle account username (if the user uses auth_oidc),
+                        // 2. can change token record.
                         if ($user->auth == 'oidc') {
                             $user->username = strtolower($oidcusername);
                             user_update_user($user, false);
 
                             $fullmessage = 'Attempt to change username of user ' . $user->id . ' from ' .
-                                $tokenrec->oidcusername . ' to ' . strtolower($oidcusername);
+                                $tokenrec->useridentifier . ' to ' . strtolower($oidcusername);
                             $event = user_rename_attempt::create(['objectid' => $user->id, 'other' => $fullmessage,
                                 'userid' => $user->id]);
                             $event->trigger();
@@ -635,7 +642,7 @@ class authcode extends base {
                             $tokenrec->username = strtolower($oidcusername);
                         }
 
-                        $tokenrec->oidcusername = $oidcusername;
+                        $tokenrec->useridentifier = $oidcusername;
                         $DB->update_record('auth_oidc_token', $tokenrec);
                     }
 
@@ -662,27 +669,18 @@ class authcode extends base {
         } else if ($usernamechanged) {
             // User has connection record, but no token; and the user has been renamed in Microsoft.
             // In this case, we need to:
-            //  1. attempt to update Moodle username,
-            //  2. create token record,
-            //  3. update connection record in local_o365_objects table.
+            // 1. attempt to update Moodle username,
+            // 2. create token record,
+            // 3. update connection record in local_o365_objects table.
 
-            if ($supportupnchangeconfig != 1) {
+            if ($supportuseridentifierchangeconfig != 1) {
                 throw new moodle_exception('errorupnchangeisnotsupported', 'local_o365', null, null, '2');
             }
 
             $existinguser = core_user::get_user($existingmatching->moodleid);
 
-            if (get_config('auth_oidc', 'idptype') == AUTH_OIDC_IDP_TYPE_MICROSOFT_IDENTITY_PLATFORM) {
-                $username = $idtoken->claim('preferred_username');
-                if (empty($username)) {
-                    $username = $idtoken->claim('email');
-                }
-            } else {
-                $username = $idtoken->claim('upn');
-                if (empty($username)) {
-                    $username = $idtoken->claim('unique_name');
-                }
-            }
+            $username = $this->get_oidc_username_from_token_claim($idtoken);
+
             $originalupn = null;
 
             if (empty($username)) {
@@ -741,18 +739,8 @@ class authcode extends base {
             */
 
             // Generate a Moodle username.
-            // Use 'upn' if available for username (Microsoft-specific), or fall back to lower-case oidcuniqid.
-            if (get_config('auth_oidc', 'idptype') == AUTH_OIDC_IDP_TYPE_MICROSOFT_IDENTITY_PLATFORM) {
-                $username = $idtoken->claim('preferred_username');
-                if (empty($username)) {
-                    $username = $idtoken->claim('email');
-                }
-            } else {
-                $username = $idtoken->claim('upn');
-                if (empty($username)) {
-                    $username = $idtoken->claim('unique_name');
-                }
-            }
+            $username = $this->get_oidc_username_from_token_claim($idtoken);
+
             $originalupn = null;
 
             if (empty($username)) {
@@ -788,7 +776,7 @@ class authcode extends base {
                 if (empty($CFG->authpreventaccountcreation)) {
                     if (!$CFG->allowaccountssameemail) {
                         $userinfo = $this->get_userinfo($username);
-                        if ($DB->count_records('user', array('email' => $userinfo['email'], 'deleted' => 0)) > 0) {
+                        if ($DB->count_records('user', ['email' => $userinfo['email'], 'deleted' => 0]) > 0) {
                             throw new moodle_exception('errorauthloginfaileddupemail', 'auth_oidc', null, null, '1');
                         }
                     }
@@ -809,7 +797,7 @@ class authcode extends base {
                 $tokenrec = $DB->get_record('auth_oidc_token', ['id' => $tokenrec->id]);
                 // This should be already done in auth_plugin_oidc::user_authenticated_hook, but just in case...
                 if (!empty($tokenrec) && empty($tokenrec->userid)) {
-                    $updatedtokenrec = new \stdClass;
+                    $updatedtokenrec = new stdClass;
                     $updatedtokenrec->id = $tokenrec->id;
                     $updatedtokenrec->userid = $user->id;
                     $DB->update_record('auth_oidc_token', $updatedtokenrec);

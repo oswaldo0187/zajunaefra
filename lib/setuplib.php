@@ -361,7 +361,7 @@ function default_exception_handler($ex) {
     }
 
     $info = get_exception_info($ex);
-
+    
     // If we already tried to send the header remove it, the content length
     // should be either empty or the length of the error page.
     @header_remove('Content-Length');

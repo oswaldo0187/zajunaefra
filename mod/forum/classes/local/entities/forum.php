@@ -178,7 +178,7 @@ class forum {
         bool $displaywordcount,
         int $lockdiscussionafter,
         int $duedate,
-        int $cutoffdate
+        int $cutoffdate,
     ) {
         $this->context = $context;
         $this->coursemodule = $coursemodule;
@@ -594,6 +594,15 @@ class forum {
         return (($discussion->get_time_modified() + $this->get_lock_discussions_after()) < time());
     }
 
+/**
+     * Get the due date.
+     *
+     * @return int
+     */
+    public function get_due_date() : int {
+        return $this->duedate;
+    }
+
     /**
      * Get the cutoff date.
      *
@@ -601,37 +610,6 @@ class forum {
      */
     public function get_cutoff_date() : int {
         return $this->cutoffdate;
-    }
-
-    /**
-     * Does the forum have a cutoff date?
-     *
-     * @return bool
-     */
-    public function has_cutoff_date() : bool {
-        return !empty($this->get_cutoff_date());
-    }
-
-    /**
-     * Is the cutoff date for the forum reached?
-     *
-     * @return bool
-     */
-    public function is_cutoff_date_reached() : bool {
-        if ($this->has_cutoff_date() && ($this->get_cutoff_date() < time())) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Get the due date.
-     *
-     * @return int
-     */
-    public function get_due_date() : int {
-        return $this->duedate;
     }
 
     /**
@@ -644,12 +622,34 @@ class forum {
     }
 
     /**
+     * Does the forum have a cutoff date?
+     *
+     * @return bool
+     */
+    public function has_cutoff_date() : bool {
+        return !empty($this->get_cutoff_date());
+    }
+    
+    /**
      * Is the due date for the forum reached?
      *
      * @return bool
      */
     public function is_due_date_reached() : bool {
         if ($this->has_due_date() && ($this->get_due_date() < time())) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    /**
+     * Is the cutoff date for the forum reached?
+     *
+     * @return bool
+     */
+    public function is_cutoff_date_reached() : bool {
+        if ($this->has_cutoff_date() && ($this->get_cutoff_date() < time())) {
             return true;
         }
 

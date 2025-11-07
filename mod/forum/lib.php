@@ -132,6 +132,8 @@ function forum_add_instance($forum, $mform = null) {
         }
     }
 
+    $forum->allowpostsfrom = isset($forum->allowpostsfrom) ? $forum->allowpostsfrom : 0;
+
     forum_update_calendar($forum, $forum->coursemodule);
     forum_grade_item_update($forum);
 
@@ -234,7 +236,7 @@ function forum_update_instance($forum, $mform) {
 
             forum_add_discussion($discussion, null, $message);
 
-            if (! $discussion = $DB->get_record('forum_discussions', array('forum'=>$forum->id))) {
+        if (! $discussion = $DB->get_record('forum_discussions', array('forum'=>$forum->id))) {
                 throw new \moodle_exception('cannotadd', 'forum');
             }
         }
@@ -274,6 +276,8 @@ function forum_update_instance($forum, $mform) {
             \mod_forum\subscriptions::subscribe_user($user->id, $forum, $modcontext);
         }
     }
+
+    $forum->allowpostsfrom = isset($forum->allowpostsfrom) ? $forum->allowpostsfrom : 0;
 
     forum_update_calendar($forum, $forum->coursemodule);
     forum_grade_item_update($forum);
@@ -587,8 +591,8 @@ function forum_print_recent_activity($course, $viewfullnames, $timestart) {
     $userfieldsapi = \core_user\fields::for_userpic();
     $allnamefields = $userfieldsapi->get_sql('u', false, '', 'duserid', false)->selects;
     if (!$posts = $DB->get_records_sql("SELECT p.*,
-                                              f.course, f.type AS forumtype, f.name AS forumname, f.intro, f.introformat, f.duedate,
-                                              f.cutoffdate, f.assessed AS forumassessed, f.assesstimestart, f.assesstimefinish,
+                                              f.course, f.type AS forumtype, f.name AS forumname, f.intro, f.introformat,
+                                              f.duedate, f.cutoffdate, f.assessed AS forumassessed, f.assesstimestart, f.assesstimefinish,
                                               f.scale, f.grade_forum, f.maxbytes, f.maxattachments, f.forcesubscribe,
                                               f.trackingtype, f.rsstype, f.rssarticles, f.timemodified, f.warnafter, f.blockafter,
                                               f.blockperiod, f.completiondiscussions, f.completionreplies, f.completionposts,
@@ -661,7 +665,7 @@ function forum_print_recent_activity($course, $viewfullnames, $timestart) {
                 'type' => $post->forumtype,
                 'name' => $post->forumname,
                 'intro' => $post->intro,
-                'introformat' => $post->introformat,
+                'introformat' => $post->introformat,             
                 'duedate' => $post->duedate,
                 'cutoffdate' => $post->cutoffdate,
                 'assessed' => $post->forumassessed,
@@ -2310,7 +2314,7 @@ function mod_forum_rating_can_see_item_ratings($params) {
     if (!forum_user_can_see_post($forum, $discussion, $post, $USER, $cm)) {
         return false;
     }
-
+   
     return true;
 }
 
@@ -2874,7 +2878,16 @@ function forum_add_new_post($post, $mform, $unused = null) {
     global $USER, $DB;
 
     $discussion = $DB->get_record('forum_discussions', array('id' => $post->discussion));
-    $forum      = $DB->get_record('forum', array('id' => $discussion->forum));
+    $forum = $DB->get_record('forum', array('id' => $discussion->forum), '*', MUST_EXIST);
+    
+    // BLOQUEAR publicaciones antes de la fecha 'Permitir entregas desde'
+    if ($forum->allowpostsfrom && time() < $forum->allowpostsfrom) {
+    throw new \moodle_exception('nopostsbeforeaccess', 'forum', '', userdate($forum->allowpostsfrom));
+
+
+
+    }
+
     $cm         = get_coursemodule_from_instance('forum', $forum->id);
     $context    = context_module::instance($cm->id);
     $privatereplyto = 0;
@@ -6477,7 +6490,7 @@ function forum_get_coursemodule_info($coursemodule) {
     global $DB;
 
     $dbparams = ['id' => $coursemodule->instance];
-    $fields = 'id, name, intro, introformat, completionposts, completiondiscussions, completionreplies, duedate, cutoffdate';
+    $fields = 'id, name, intro, introformat, completionposts, completiondiscussions, completionreplies, allowpostsfrom, duedate, cutoffdate';
     if (!$forum = $DB->get_record('forum', $dbparams, $fields)) {
         return false;
     }
@@ -6498,6 +6511,10 @@ function forum_get_coursemodule_info($coursemodule) {
     }
 
     // Populate some other values that can be used in calendar or on dashboard.
+
+    if ($forum->allowpostsfrom) {
+        $result->customdata['allowpostsfrom'] = $forum->allowpostsfrom;
+    }
     if ($forum->duedate) {
         $result->customdata['duedate'] = $forum->duedate;
     }

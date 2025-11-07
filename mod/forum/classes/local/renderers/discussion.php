@@ -394,23 +394,54 @@ class discussion {
         $discussion = $this->discussion;
         $forum = $this->forum;
 
+        // If the cut-off date has been reached then we should show the cut-off
+        // reached message (posting is no longer allowed after that date).
         if ($forum->is_cutoff_date_reached()) {
             $notifications[] = (new notification(
                     get_string('cutoffdatereached', 'forum'),
                     notification::NOTIFY_INFO
             ))->set_show_closebutton();
         } else if ($forum->get_type() != 'single') {
-            // Due date is already shown at the top of the page for single simple discussion forums.
-            if ($forum->is_due_date_reached()) {
-                $notifications[] = (new notification(
-                    get_string('thisforumisdue', 'forum', userdate($forum->get_due_date())),
-                    notification::NOTIFY_INFO
-                ))->set_show_closebutton();
-            } else if ($forum->has_due_date()) {
-                $notifications[] = (new notification(
-                    get_string('thisforumhasduedate', 'forum', userdate($forum->get_due_date())),
-                    notification::NOTIFY_INFO
-                ))->set_show_closebutton();
+            // For non-single forums determine which date to show. The requirement
+            // is: if only one of due date or cut-off date is set show that one;
+            // if both are set show the later (maximum) of the two.
+            $duedate = $forum->has_due_date() ? $forum->get_due_date() : 0;
+            $cutoffdate = $forum->has_cutoff_date() ? $forum->get_cutoff_date() : 0;
+
+            $displaydate = max($duedate, $cutoffdate);
+
+            if (!empty($displaydate)) {
+                $datestr = userdate($displaydate);
+                // Determine whether the displayed date corresponds to cutoff or due date.
+                $iscutoff = ($cutoffdate !== 0 && $cutoffdate >= $duedate);
+
+                if ($iscutoff) {
+                    // Use cutoff-specific strings.
+                    if ($displaydate < time()) {
+                        $notifications[] = (new notification(
+                            get_string('thisforumiscutoff', 'forum', $datestr),
+                            notification::NOTIFY_INFO
+                        ))->set_show_closebutton();
+                    } else {
+                        $notifications[] = (new notification(
+                            get_string('thisforumhascutoffdate', 'forum', $datestr),
+                            notification::NOTIFY_INFO
+                        ))->set_show_closebutton();
+                    }
+                } else {
+                    // Use due-date strings.
+                    if ($displaydate < time()) {
+                        $notifications[] = (new notification(
+                            get_string('thisforumisdue', 'forum', $datestr),
+                            notification::NOTIFY_INFO
+                        ))->set_show_closebutton();
+                    } else {
+                        $notifications[] = (new notification(
+                            get_string('thisforumhasduedate', 'forum', $datestr),
+                            notification::NOTIFY_INFO
+                        ))->set_show_closebutton();
+                    }
+                }
             }
         }
 

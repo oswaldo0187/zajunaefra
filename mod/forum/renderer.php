@@ -182,6 +182,7 @@ class mod_forum_renderer extends plugin_renderer_base {
      */
     public function timed_discussion_tooltip($discussion, $visiblenow) {
         $dates = array();
+
         if ($discussion->timestart) {
             $dates[] = get_string('displaystart', 'mod_forum').': '.userdate($discussion->timestart);
         }

@@ -58,6 +58,11 @@ class mod_forum_mod_form extends moodleform_mod {
 
         $mform->addElement('header', 'availability', get_string('availability', 'forum'));
 
+    // Fecha para permitir entregas desde
+        $name = get_string('allowpostsfrom', 'forum');
+        $mform->addElement('date_time_selector', 'allowpostsfrom', get_string('allowpostsfrom', 'forum'), array('optional' => true));
+        $mform->addHelpButton('allowpostsfrom', 'allowpostsfrom', 'forum');
+
         $name = get_string('duedate', 'forum');
         $mform->addElement('date_time_selector', 'duedate', $name, array('optional' => true));
         $mform->addHelpButton('duedate', 'duedate', 'forum');
@@ -206,11 +211,28 @@ class mod_forum_mod_form extends moodleform_mod {
         $mform->hideIf('warnafter', 'blockperiod', 'eq', 0);
 
 //-------------------------------------------------------------------------------
+        
+            // Add whole forum evaluation option while hiding standard grading
+            // We temporarily disable rating feature to hide the standard grading UI
+            $oldfeature_rating = isset($this->_features->rating) ? $this->_features->rating : null;
+            $oldfeature_gradecat = isset($this->_features->gradecat) ? $this->_features->gradecat : null;
+            $this->_features->rating = false;
+            $this->_features->gradecat = false;
+        
+            // Add forum evaluation settings first
+            $this->add_forum_grade_settings($mform, 'forum');
+        
+            // Then add standard elements with ratings disabled
+            $this->standard_coursemodule_elements();
+        
+            // Restore original feature values
+            if ($oldfeature_rating !== null) {
+                $this->_features->rating = $oldfeature_rating;
+            }
+            if ($oldfeature_gradecat !== null) {
+                $this->_features->gradecat = $oldfeature_gradecat;
+            }
 
-        // Add the whole forum grading options.
-        $this->add_forum_grade_settings($mform, 'forum');
-
-        $this->standard_coursemodule_elements();
 //-------------------------------------------------------------------------------
 // buttons
         $this->add_action_buttons();
@@ -219,7 +241,7 @@ class mod_forum_mod_form extends moodleform_mod {
     /**
      * Add the whole forum grade settings to the mform.
      *
-     * @param   \mform $mform
+    * @param   mixed $mform The form object (MoodleQuickForm)
      * @param   string $itemname
      */
     private function add_forum_grade_settings($mform, string $itemname) {
@@ -238,7 +260,8 @@ class mod_forum_mod_form extends moodleform_mod {
         $methodfieldname = "advancedgradingmethod_{$itemname}";
 
         $headername = "{$gradefieldname}_header";
-        $mform->addElement('header', $headername, get_string("grade_{$itemname}_header", $component));
+            // Use existing string keys so Moodle can translate this (e.g. to Spanish).
+            $mform->addElement('header', $headername, get_string('grade_forum_header', 'forum'));
 
         $isupdate = !empty($this->_cm);
         $gradeoptions = [
@@ -267,7 +290,8 @@ class mod_forum_mod_form extends moodleform_mod {
         $mform->addElement(
             'modgrade',
             $gradefieldname,
-            get_string("{$gradefieldname}_title", $component),
+                // Use the existing title string for whole forum grading.
+                get_string('grade_forum_title', 'forum'),
             $gradeoptions
         );
         $mform->addHelpButton($gradefieldname, 'modgrade', 'grades');
@@ -285,22 +309,6 @@ class mod_forum_mod_form extends moodleform_mod {
             $mform->hideIf($methodfieldname, "{$gradefieldname}[modgrade_type]", 'eq', 'none');
         }
 
-        // Grade category.
-        $mform->addElement(
-            'select',
-            $gradecatfieldname,
-            get_string('gradecategoryonmodform', 'grades'),
-            grade_get_categories_menu($COURSE->id, $this->_outcomesused)
-        );
-        $mform->addHelpButton($gradecatfieldname, 'gradecategoryonmodform', 'grades');
-        $mform->hideIf($gradecatfieldname, "{$gradefieldname}[modgrade_type]", 'eq', 'none');
-
-        // Grade to pass.
-        $mform->addElement('text', $gradepassfieldname, get_string('gradepass', 'grades'));
-        $mform->addHelpButton($gradepassfieldname, 'gradepass', 'grades');
-        $mform->setDefault($gradepassfieldname, '');
-        $mform->setType($gradepassfieldname, PARAM_RAW);
-        $mform->hideIf($gradepassfieldname, "{$gradefieldname}[modgrade_type]", 'eq', 'none');
 
         $mform->addElement('selectyesno', 'grade_forum_notify', get_string('sendstudentnotificationsdefault', 'forum'));
         $mform->addHelpButton('grade_forum_notify', 'sendstudentnotificationsdefault', 'forum');
@@ -331,16 +339,25 @@ class mod_forum_mod_form extends moodleform_mod {
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
 
-        if ($data['type'] === 'single' && $data['groupmode'] == SEPARATEGROUPS) {
+    if ($data['type'] === 'single' && $data['groupmode'] == SEPARATEGROUPS) {
             $errors['type'] = get_string('cannotusesingletopicandseperategroups', 'forum');
             $errors['groupmode'] = get_string('cannotuseseperategroupsandsingletopic', 'forum');
         }
+    
+    // Validar que Permitir entregas desde <= Fecha de entrega.
+    if (!empty($data['allowpostsfrom']) && !empty($data['duedate']) && $data['allowpostsfrom'] > $data['duedate']) {
+        $errors['allowpostsfrom'] = get_string('error_allowpostsfrom_after_duedate', 'forum');
+    }
 
-        if ($data['duedate'] && $data['cutoffdate']) {
-            if ($data['duedate'] > $data['cutoffdate']) {
-                $errors['cutoffdate'] = get_string('cutoffdatevalidation', 'forum');
-            }
-        }
+    // Validar que Permitir entregas desde <= Fecha límite.
+    if (!empty($data['allowpostsfrom']) && !empty($data['cutoffdate']) && $data['allowpostsfrom'] > $data['cutoffdate']) {
+        $errors['allowpostsfrom'] = get_string('error_allowpostsfrom_after_cutoffdate', 'forum');
+    }
+
+    // Validar que Fecha de entrega <= Fecha límite.
+    if (!empty($data['duedate']) && !empty($data['cutoffdate']) && $data['duedate'] > $data['cutoffdate']) {
+        $errors['duedate'] = get_string('error_duedate_after_cutoffdate', 'forum');
+    }
 
         $this->validation_forum_grade($data, $files, $errors);
 

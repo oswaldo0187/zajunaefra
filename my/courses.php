@@ -30,6 +30,7 @@
 require_once(__DIR__ . '/../config.php');
 require_once($CFG->dirroot . '/my/lib.php');
 require_once($CFG->dirroot . '/course/lib.php');
+require_once($CFG->dirroot . '/local/slider/lib/showSlider.php'); // se añade como ultimo require del archivo
 
 redirect_if_major_upgrade_required();
 
@@ -71,6 +72,8 @@ $PAGE->theme->addblockposition  = BLOCK_ADDBLOCK_POSITION_CUSTOM;
 // Add course management if the user has the capabilities for it.
 $coursecat = core_course_category::user_top();
 $coursemanagemenu = [];
+$sliderContent = slider(); // se añade posteriormente a la declaración del arreglo vacio para el gestor del menu del curso $coursemanagemenu = [];
+
 if ($coursecat && ($category = core_course_category::get_nearest_editable_subcategory($coursecat, ['create']))) {
     // The user has the capability to create course.
     $coursemanagemenu['newcourseurl'] = new moodle_url('/course/edit.php', ['category' => $category->id]);
@@ -92,6 +95,8 @@ if (!empty($coursemanagemenu)) {
 }
 
 echo $OUTPUT->header();
+
+echo $sliderContent; // se añade después de la llamada al header y antes del footer.
 
 if (core_userfeedback::should_display_reminder()) {
     core_userfeedback::print_reminder_block();
