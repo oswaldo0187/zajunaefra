@@ -1,0 +1,390 @@
+.accesibilidad {
+    position: fixed;
+    z-index: 3;
+    right: 0;
+    top: 205px;
+    gap: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.accesibilidad__inicio {
+    background-color: #fbad20;
+    padding: 10px;
+    border-radius: 21px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    transition: background-color 0.25s ease-in-out;
+}
+
+.accesibilidad__buttons {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    padding: 5px;
+    background-color: var(--alternate-background);
+    align-items: center;
+    
+    border-radius: 20px;
+    transition: transform 0.25s ease-in-out;
+    position: fixed;
+    transform: translateX(100%);
+    justify-content: space-between;
+    justify-items: center;
+    width: 180px;
+    height: 440px;
+    
+
+}
+
+
+.accesibilidad__inicio-1{
+  grid-column: span 2;
+  display: flex;
+  justify-content: center;
+
+
+}
+
+.accesibilidad__buttons.visible {
+    transform: translateX(0); 
+
+}
+
+.accesibilidad__boton {
+    width: 50px;           
+    height: 50px;  
+    background-color: var(--alternate-background);
+    cursor: pointer;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    transition: none;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.accesibilidad__boton--text {
+    color: white;
+    font-size: 13px;
+}
+
+.contrast_types-text{
+    color: #000000;
+    font-size: 13px;
+    
+}
+
+/* .accesibilidad-img {
+    width: 40px;
+}
+
+.accesibilidad-img-rest{
+    width: 30px;
+} */
+
+.contraste_buttons {
+    position: absolute;
+    right: 10px;
+    z-index: -10;
+    bottom: 170px;
+    height: 32px;
+    background-color: var(--alternate-background);
+    padding: 5px;
+    border-radius: 5px;
+    overflow: hidden;
+    display: flex;
+    gap: 2px;
+    opacity: 0;
+    transform: translatey(100%); /* Inicialmente fuera de la vista hacia la derecha */
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+.contrast_types{
+    width: 20px;
+    background-color:white;
+    display: flex;
+    justify-content: center;
+    border: none;
+    border-radius: 3px;
+}
+/* Estilos para Fuente Apta para Dislexia */
+.dyslexia-friendly {
+    font-family: 'OpenDyslexic', sans-serif !important;
+    letter-spacing: 0.2em !important; /* Espaciado de letras */
+    word-spacing: 0.2em !important; /* Espaciado de palabras */
+    line-height: 1.6 !important; /* Interlineado */
+}
+
+
+.contraste_buttons.visible {
+    opacity: 1;
+    transform: translateX(0); /* Mueve las opciones a su posición visible */
+}
+
+
+.mensaje-voz {
+    background-color: var(--color-info);
+    border-radius: 11px;
+    position: absolute;
+    top: 250px;
+    left: -200px;
+    z-index: 10;
+    width: auto;
+    max-width: 200px;
+    display: none;
+    
+}
+
+.mensaje-text {
+    color: black;
+    padding: 10px;
+}
+
+.mensaje-voz::after {
+    content: "";
+    position: absolute;
+    top: 38%;
+    left:199px; 
+    border-width: 10px;
+    z-index: -10;
+    border-style: solid;
+    border-color:    transparent transparent  transparent var(--color-info); /* Flecha del mismo color que el fondo */
+}
+
+
+.list_false-color{
+    background-color: #39a900;
+    border-radius: 0 0 9px 9px;
+}
+
+
+
+.accesibilidad__container-rest{
+    grid-column: span 2;
+    display: flex;
+    justify-content: center;
+}
+
+:root.contrast {
+    --primary: #000000;
+    --secondary: #e6e6e6;
+    --tertiary: #999999;
+    --alternate: #666666;
+    --primary-text: #808080;
+    --secondary-text: #cccccc;
+    --alternate-text: #999999;
+    --primary-background: #000000;
+    --secondary-background: #333333;
+    --alternate-background: #222222;
+    --color-success: #a4ff7e;
+    --color-error: #e74c3c;
+    --color-warning: #f1c40f;
+    --color-info: #ffffff;
+    --primary-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+    --primary-font-family: 'Work Sans Regular', sans-serif;
+    --secondary-font-family: 'Work Sans Bold', sans-serif;
+    --bp-small: 480px;
+    --bp-medium: 767px;
+    --bp-large: 1200px;
+    --web-margin: 1366px;
+
+    h6,h4,span,.no-overflow , input{
+        color: #000000;
+    }
+
+    div{
+        color:#39a900; 
+    }
+
+    h1{
+        color: #39a900;
+    }
+
+    li a.nav-link{
+        color:#39a900;
+    }
+    span.userbutton span.usertext.mr-1{
+        color: #39a900;
+    }
+
+    .activityiconcontainer.collaboration,
+    .activityiconcontainer.assessment {
+        background-color: #39a900;
+    }
+    
+    a.btn.btn-primary{
+        color: white;
+    }
+
+    a, span,h2,p,dt,dd,dl{
+        color:#39a900;
+    }
+
+    input#id_senacode,#id_fichacode{
+        color:black;
+    } 
+
+
+    
+
+    #page-wrapper,#page-my-index,#region-main,#page-content{
+    background-color:#ffffff;
+}
+
+}
+
+:root.contrast-a {
+    --primary: #007bff; /* Azul oscuro (sin cambios) */
+    --secondary: #6ca0dc; /* Azul claro */
+    --tertiary: #f7c02a; /* Amarillo dorado (en lugar de naranja) */
+    --alternate: #d86128; /* Marrón anaranjado (en lugar de rojo) */
+    --primary-text: #ffffff; /* Texto principal (sin cambios) */
+    --secondary-text: #ffffff; /* Texto secundario (sin cambios) */
+    --alternate-text: #000000; /* Texto alternativo (sin cambios) */
+    --primary-background: #002f6c; /* Azul más oscuro (en lugar de fondo azul oscuro) */
+    --secondary-background: #e6e6e6; /* Fondo azul claro (sin cambios) */
+    --alternate-background: #87ceeb; /* Fondo amarillo dorado (en lugar de naranja) */
+    --color-success: #2ca02c; /* Verde (sin cambios) */
+    --color-error: #d86128; /* Marrón anaranjado (en lugar de rojo) */
+    --color-warning: #f7c02a; /* Amarillo dorado (en lugar de naranja) */
+    --color-info: #ffffff; /* Blanco (sin cambios) */
+
+    --primary-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2); /* Sombra primaria (sin cambios) */
+    --primary-font-family: 'Work Sans Regular', sans-serif; /* Fuente primaria (sin cambios) */
+    --secondary-font-family: 'Work Sans Bold', sans-serif; /* Fuente secundaria (sin cambios) */
+    --bp-small: 480px; /* Breakpoint pequeño (sin cambios) */
+    --bp-medium: 767px; /* Breakpoint medio (sin cambios) */
+    --bp-large: 1200px; /* Breakpoint grande (sin cambios) */
+    --web-margin: 1366px; /* Margen web (sin cambios) */
+
+
+    h6,h4,span,.no-overflow{
+        color:var(--color-info);
+    }
+
+    h1{
+        color: var(--color-info);
+    }
+
+    li a.nav-link{
+        color:var(--color-info);
+    }
+    span.userbutton span.usertext.mr-1{
+        color: var(--color-info);
+    }
+
+    .activityiconcontainer.collaboration,
+    .activityiconcontainer.assessment {
+        background-color: #39a900;
+    }
+
+    a, span,h2,p{
+        color:#808080;
+    }
+    /* #page-wrapper,#page-my-index,#region-main,#page-content{
+    background-color:#000000;
+} */
+}
+
+:root.contrast-b {
+    --primary: #f4c300; /* Cian oscuro (sin cambios) */
+    --secondary: #f5a623; /* Amarillo más cálido (ligeramente menos saturado que el original) */
+    --tertiary: #8a2b0f; /* Marrón rojizo (en lugar de rojo oscuro) */
+    --alternate: #f4a988; /* Salmón más claro */
+    --primary-text: #ffffff; /* Texto principal (sin cambios) */
+    --secondary-text: #000000; /* Texto secundario (sin cambios) */
+    --alternate-text: #000000; /* Texto alternativo (sin cambios) */
+    --primary-background: #005f6a; /* Fondo principal (sin cambios) */
+    --secondary-background: #e6e6e6; /* Fondo secundario (amarillo más cálido) */
+    --alternate-background: #87ceeb; /* Fondo marrón rojizo (en lugar de rojo oscuro) */
+    --color-success: #009f4d; /* Verde azulado (más amigable para la deuteranopia) */
+    --color-error: #8a2b0f; /* Marrón rojizo (en lugar de rojo oscuro) */
+    --color-warning: #f5a623; /* Amarillo más cálido */
+    --color-info: #ffffff; /* Blanco (sin cambios) */
+
+    --primary-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2); /* Sombra primaria (sin cambios) */
+    --primary-font-family: 'Work Sans Regular', sans-serif; /* Fuente primaria (sin cambios) */
+    --secondary-font-family: 'Work Sans Bold', sans-serif; /* Fuente secundaria (sin cambios) */
+    --bp-small: 480px; /* Breakpoint pequeño (sin cambios) */
+    --bp-medium: 767px; /* Breakpoint medio (sin cambios) */
+    --bp-large: 1200px; /* Breakpoint grande (sin cambios) */
+    --web-margin: 1366px; /* Margen web (sin cambios) */
+
+    h6,h4,span,.no-overflow{
+        color:var(--color-info);
+    }
+
+    h1{
+        color: var(--color-info);
+    }
+
+    li a.nav-link{
+        color:var(--color-info);
+    }
+    span.userbutton span.usertext.mr-1{
+        color: var(--color-info);
+    }
+
+    .activityiconcontainer.collaboration,
+    .activityiconcontainer.assessment {
+        background-color: #39a900;
+    }
+
+    a, span,h2,p{
+        color:#808080;
+    }
+    /* #page-wrapper,#page-my-index,#region-main,#page-content{
+    background-color:; */
+}
+
+
+:root.contrast-c {
+    --primary: #ff6600; /* Azul oscuro */
+    --secondary: #d4a5a5; /* Rosa pálido */
+    --tertiary: #f18f01; /* Naranja brillante */
+    --alternate: #e56b6f; /* Rojo rosado */
+    --primary-text: #ffffff; /* Texto principal */
+    --secondary-text: #000000; /* Texto secundario */
+    --alternate-text: #000000; /* Texto alternativo */
+    --primary-background: #006ba6; /* Fondo principal */
+    --secondary-background: #e6e6e6; /* Fondo secundario */
+    --alternate-background: #006400; /* Fondo alternativo */
+    --color-success: #52d726; /* Verde */
+    --color-error: #e56b6f; /* Rojo rosado */
+    --color-warning: #f18f01; /* Naranja */
+    --color-info: #ffffff; /* Blanco */
+    --primary-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+    --primary-font-family: 'Work Sans Regular', sans-serif;
+    --secondary-font-family: 'Work Sans Bold', sans-serif;
+    --bp-small: 480px;
+    --bp-medium: 767px;
+    --bp-large: 1200px;
+    --web-margin: 1366px;
+
+    h6,h4,span,.no-overflow{
+        color:var(--color-info);
+    }
+
+    h1{
+        color: var(--color-info);
+    }
+
+    li a.nav-link{
+        color:var(--color-info);
+    }
+    span.userbutton span.usertext.mr-1{
+        color: var(--color-info);
+    }
+
+    .activityiconcontainer.collaboration,
+    .activityiconcontainer.assessment {
+        background-color: #39a900;
+    }
+
+    a, span,h2,p{
+        color:#808080;
+    }
+
+}

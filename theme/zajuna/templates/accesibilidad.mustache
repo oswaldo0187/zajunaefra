@@ -1,0 +1,72 @@
+
+ <link rel="stylesheet" href="{{{ config.wwwroot }}}/theme/zajuna/scss/accesibilidad.css">
+  <link rel="stylesheet" href="/others/libraries/zajunaicons/style.css">
+    <div class="accesibilidad">
+        <button class="accesibilidad__inicio" id="toggle-inicio">
+           <i class="zicon-relation-1" style="font-size: 35px"></i>
+        </button>
+
+        <div class="accesibilidad__buttons" id="toggle-buttons">
+            <div class="accesibilidad__inicio-1">
+                <i class="zicon-relation-1" style="font-size: 35px;color: white"></i>
+            </div>
+
+            <div class="accesibilidad__container">
+                <button class="accesibilidad__boton" id="toggle-zoom-in">
+                    <i class="zicon-a" style="background: white;font-size: 35px;color: #04324d;padding: 5px;border-radius: 13px;"></i>
+                    <div class="accesibilidad__boton--text">Aumentar<br>Letra</div>
+                </button>
+            </div>
+            <div class="accesibilidad__container">
+                <button class="accesibilidad__boton" id="toggle-zoom-out">
+                    <i class="zicon-a-" style="background: white;font-size: 35px;color: #04324d;padding: 5px;border-radius: 13px;"></i>
+                    <div class="accesibilidad__boton--text">Disminuir<br>Letra</div>
+                </button>
+            </div>
+            <div class="accesibilidad__container">
+                <button class="accesibilidad__boton" id="toggle-contrast-propio">
+                    <i class="zicon-contrast" style="background: white;font-size: 35px;color: #04324d;padding: 5px;border-radius: 13px;"></i>
+                    <div class="accesibilidad__boton--text">Contraste</div>
+                </button>
+            </div>
+            <div class="accesibilidad__container">
+                <button class="accesibilidad__boton" id="toggle-dislexia">
+                    <i class="zicon-dislexia" style="background: white;font-size: 35px;color: #04324d;padding: 5px;border-radius: 13px;"></i>
+                    <div class="accesibilidad__boton--text">Dislexia</div>
+                </button>
+            </div>
+            <div class="accesibilidad__container">
+                <button class="accesibilidad__boton" id="toggle-lector">
+                    <i class="zicon-voice-assistant" style="background: white;font-size: 35px;color: #04324d;padding: 5px;border-radius: 13px;"></i>
+                    <div class="accesibilidad__boton--text">Lector</div>
+                </button>
+                <div id="mensaje-voz" class="mensaje-voz" style="display: none;">
+                    <div class="mensaje-text">Este es un lector de pantalla para personas con discapacidad visual.</div>
+                    <div class="list_false-color">&nbsp;</div>
+                </div>
+            </div>
+            <div class="accesibilidad__container">
+                <div class="contraste_buttons" id="toggle-contraste-buttons">
+                    <button class="contrast_types">
+                        <p class="contrast_types-text">A</p>
+                    </button>
+                    <button class="contrast_types">
+                        <p class="contrast_types-text">B</p>
+                    </button>
+                    <button class="contrast_types">
+                        <p class="contrast_types-text">C</p>
+                    </button>
+                </div>
+                <button class="accesibilidad__boton" id="toggle-contrast">
+                    <i class="zicon-open-eye-2" style="background: white;font-size: 35px;color: #04324d;padding: 5px;border-radius: 13px;"></i>
+                    <div class="accesibilidad__boton--text">Daltonismo</div>
+                </button>
+            </div>
+            <div class="accesibilidad__container-rest">
+                <button class="accesibilidad__boton" id="toggle-restore">
+                   <i class="zicon-resotore" style="font-size: 28px;color: white"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+<script src="{{{ config.wwwroot }}}/theme/zajuna/scss/javascript/accesibilidad.js"></script>

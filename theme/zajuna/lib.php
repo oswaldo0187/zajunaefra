@@ -1,0 +1,216 @@
+<?php
+
+// Every file should have GPL and copyright in the header - we skip it in tutorials but you should not skip it for real.
+
+// This line protects the file from being accessed by a URL directly.
+defined('MOODLE_INTERNAL') || die();
+
+// We will add callbacks here as we add features to our theme.
+
+	/**
+ * Returns the main SCSS content.
+ *
+ * @param theme_config $theme The theme config object.
+ * @return string All fixed Sass for this theme.
+ */
+function theme_zajuna_get_main_scss_content($theme) {
+    global $CFG;
+
+    $scss = '';
+
+    $fs = get_file_storage();
+
+    // Main CSS - Get the CSS from theme Classic.
+    $scss .= file_get_contents($CFG->dirroot . '/theme/classic/scss/classic/pre.scss');
+    $scss .= file_get_contents($CFG->dirroot . '/theme/classic/scss/preset/default.scss');
+    $scss .= file_get_contents($CFG->dirroot . '/theme/classic/scss/classic/post.scss');
+
+    // Pre CSS - this is loaded AFTER any prescss from the setting but before the main scss.
+    $pre = file_get_contents($CFG->dirroot . '/theme/zajuna/scss/pre.scss');
+
+    // Post CSS - this is loaded AFTER the main scss but before the extra scss from the setting.
+    $post = file_get_contents($CFG->dirroot . '/theme/zajuna/scss/post.scss');
+
+    // Combine them together.
+    return $pre . "\n" . $scss . "\n" . $post;
+}
+
+/**
+ * Funciones del Slider para el tema Zajuna
+ * Adaptadas desde local_slider plugin
+ */
+
+/**
+ * Obtiene las imágenes activas del slider desde la base de datos
+ *
+ * @return array Arreglo con información de las imágenes activas
+ */
+/**
+ * Obtiene las imágenes activas del slider desde la base de datos
+ *
+ * @return array Arreglo con información de las imágenes activas
+ */
+function theme_zajuna_get_slider_images() {
+    global $DB;
+
+    try {
+        $dbman = $DB->get_manager();
+        // Detectar si estamos en una página de curso para filtrar por course_state
+        global $COURSE;
+        $iscourse = (isset($COURSE) && !empty($COURSE->id) && intval($COURSE->id) > 1);
+
+        // Primero intenta con la tabla local_slider
+        if ($dbman->table_exists('local_slider')) {
+            $sql = "SELECT id, desktop_image, mobile_image, url, order_display
+                    FROM {local_slider}
+                    WHERE " . $DB->sql_compare_text('state') . " = ?";
+            $params = ['1'];
+
+            if ($iscourse) {
+                // Mostrar solo las imágenes que también están habilitadas para curso
+                $sql .= " AND course_state = ?";
+                $params[] = '1';
+            }
+
+            $sql .= " ORDER BY order_display ASC";
+            $records = $DB->get_records_sql($sql, $params);
+
+            if (!empty($records)) {
+                return array_values($records);
+            }
+        }
+
+        // Si no encuentra nada, intenta con la tabla imagecarousel
+        if ($dbman->table_exists('imagecarousel')) {
+            $sql = "SELECT id, desktop_image, mobile_image, url, order_display
+                    FROM {imagecarousel}
+                    WHERE " . $DB->sql_compare_text('state') . " = ?
+                    ORDER BY order_display ASC";
+            $records = $DB->get_records_sql($sql, ['1']);
+
+            if (!empty($records)) {
+                return array_values($records);
+            }
+        }
+
+        // Si no hay registros, devolver vacío
+        return [];
+
+    } catch (Exception $e) {
+        debugging("Error en theme_zajuna_get_slider_images: " . $e->getMessage(), DEBUG_DEVELOPER);
+        return [];
+    }
+}
+
+
+
+
+
+/**
+ * Obtiene los datos del slider formateados para el template Mustache
+ *
+ * @return array Datos del slider para el template
+ */
+function theme_zajuna_get_slider_data() {
+    $images = theme_zajuna_get_slider_images();
+    
+    if (empty($images)) {
+        return ['has_images' => false, 'images' => []];
+    }
+    
+    $formatted_images = [];
+    foreach ($images as $index => $image) {
+        // Preparar URL
+        $url = !empty($image->url) ? trim($image->url) : '';
+        if ($url && $url !== '#' && !preg_match('~^https?://~i', $url)) {
+            $url = 'https://' . $url;
+        }
+        
+        $formatted_images[] = [
+            'id' => $image->id,
+            'index' => $index,
+            'first' => ($index === 0),
+            'desktop_image' => $image->desktop_image,
+            'mobile_image' => $image->mobile_image,
+            'url' => $url ?: '#',
+            'has_url' => !empty($url) && $url !== '#'
+        ];
+    }
+    
+    return [
+        'has_images' => true,
+        'images' => $formatted_images,
+        'title' => ''
+    ];
+}
+
+/**
+ * Carga los assets necesarios para el slider
+ *
+ * @param moodle_page $page Objeto de página de Moodle
+ */
+function theme_zajuna_load_slider_assets($page) {
+    // JavaScript personalizado para el carousel Bootstrap 4
+    $page->requires->js_init_code('
+        require(["jquery"], function($) {
+            $(document).ready(function() {
+                function initZajunaCarousel() {
+                    if ($("#zajunaCarousel").length === 0) {
+                        return;
+                    }
+                    
+                    // Configurar imágenes responsivas
+                    function setResponsiveImages() {
+                        $(".carousel-item").each(function() {
+                            var $item = $(this);
+                            var $img = $item.find(".zajuna-slider-img");
+                            var desktopSrc = $item.data("desktop");
+                            var mobileSrc = $item.data("mobile");
+                            
+                            if (!desktopSrc) return;
+                            
+                            // Determinar qué imagen usar
+                            var imgSrc = (window.innerWidth <= 768 && mobileSrc) ? mobileSrc : desktopSrc;
+                            
+                            // Si no tiene prefijo data:image, añadirlo
+                            if (!imgSrc.startsWith("data:image/")) {
+                                imgSrc = "data:image/jpeg;base64," + imgSrc;
+                            }
+                            
+                            $img.attr("src", imgSrc);
+                            $img.attr("alt", "Slider Image");
+                        });
+                    }
+                    
+                    // Configurar imágenes iniciales
+                    setResponsiveImages();
+                    
+                    // Configurar carousel Bootstrap 4
+                    $("#zajunaCarousel").carousel({
+                        interval: 4000,
+                        pause: "hover",
+                        wrap: true
+                    });
+                    
+                    // Manejar cambios de tamaño de ventana
+                    $(window).on("resize", function() {
+                        setResponsiveImages();
+                    });
+                    
+                    // Manejar botón de mostrar/ocultar slider
+                    $("#zajunaSliderCollapse").on("show.bs.collapse", function() {
+                        $(".zajuna-slider-toggle-text").text("Ocultar");
+                        $(".zajuna-slider-toggle-icon").removeClass("fa-chevron-down").addClass("fa-chevron-up");
+                    });
+                    
+                    $("#zajunaSliderCollapse").on("hide.bs.collapse", function() {
+                        $(".zajuna-slider-toggle-text").text("Mostrar");
+                        $(".zajuna-slider-toggle-icon").removeClass("fa-chevron-up").addClass("fa-chevron-down");
+                    });
+                }
+                
+                initZajunaCarousel();
+            });
+        });
+    ');
+}

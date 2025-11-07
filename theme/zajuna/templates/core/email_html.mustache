@@ -1,0 +1,68 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template core/email_html
+
+    Template for all html emails. Note that it may wrap content formatted
+    elsewhere in another a module template.
+
+    Context variables required for this template:
+    * sitefullname
+    * siteshortname
+    * sitewwwroot
+    * subject
+    * to
+    * toname
+    * touserid
+    * tousername
+    * from
+    * fromname
+    * replyto
+    * replytoname
+    * body
+    * prefix
+
+    Example context (json):
+    {
+        "prefix": "[Prefix Text]",
+        "body": "Email body"
+    }
+}}
+<body style="font-family: 'Arial', sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
+    <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+        <div style="text-align: center;">
+            <img src="https://zajuna.sena.edu.co/images/anuncios/header-email.png" 
+                 alt="Logo del SENA en la plataforma Zajuna" 
+                 style="width: 100%; height: auto; display: block;">
+        </div>
+        <div style="padding: 30px 20px;">
+
+            <h1 style="color: #333333; font-size: 24px; margin-bottom: 20px; text-align: center; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">{{{subject}}}</h1>
+            <div style="color: #555555; font-size: 16px; line-height: 1.6;">
+                {{{body}}}
+            </div>
+        </div>
+
+        <div style="background-color: #f9f9f9; color: #777777; text-align: center; padding: 15px; font-size: 14px; border-top: 1px solid #eeeeee;">
+            <p style="margin: 0;">&copy; 2024 Zajuna. Todos los derechos reservados.</p>
+            <p style="margin: 10px 0 0;">
+                <a href="https://portal.senasofiaplus.edu.co/index.php/seguridad/politica-de-confidencialidad" style="color: #555555; text-decoration: none; margin: 0 10px;">Política de Seguridad y Confidencialidad</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

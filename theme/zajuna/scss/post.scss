@@ -1,0 +1,621 @@
+// We like our buttons very round.
+:root {
+    --primary: #39a900;
+    --secondary: #98fe58;
+    --tertiary: #f2ffe5;
+    --alternate: #29690b;
+    --primary-text: black;
+    --secondary-text: #5d5d5d;
+    --alternate-text: #919191;
+    --primary-background: #fff;
+    --secondary-background: #E6E6E6;
+    --alternate-background: #04324d;
+    --color-success: #52d726;
+    --color-error: #e74c3c;
+    --color-warning: #f1c40f;
+    --color-info: #ffffff;
+    --primary-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    --primary-font-family: 'Work Sans Regular', sans-serif;
+    --secondary-font-family: 'Work Sans Bold', sans-serif;
+    --bp-small: 480px;
+    --bp-medium: 767px;
+    --bp-large: 1200px;
+    --web-margin: 1366px;
+
+}
+
+:root.contrast {
+    --primary: #39a900;
+    --secondary: #98fe58;
+    --tertiary: #f2ffe5;
+    --alternate: #29690b;
+    --primary-text: #ffffff;
+    --secondary-text: #ffffff;
+    --alternate-text: #ffffff;
+    --primary-background: #000000;
+    --secondary-background: #E6E6E6;
+    --alternate-background: #39a900;
+    --color-success: #52d726;
+    --color-error: #e74c3c;
+    --color-warning: #f1c40f;
+    --color-info: #ffffff;
+
+
+    input {
+        color: var(--color-info);
+    }
+
+    p {
+        color: gray;
+    }
+}
+
+* {
+    scroll-behavior: smooth;
+}
+
+
+// Full header
+.page-context-header {
+    flex-wrap: wrap;
+    align-items: center;
+    flex-direction: column;
+    padding: 0;
+}
+
+.logininfo {
+    text-align: center;
+}
+
+#page-footer {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.page-header-headings {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    background-color: var(--primary);
+    padding: 8px;
+}
+
+.page-header-headings h2 {
+    font-weight: bold;
+}
+
+.page-header-headings h1 {
+    font-weight: bold;
+    color: white;
+    text-transform: capitalize;
+}
+
+.d-flex .singlebutton:first-child {
+    margin-left: 12px;
+}
+
+#page-header .d-flex.justify-content-center.p-3.flex-wrap .d-flex .singlebutton:last-child {
+    display: none;
+}
+
+.page-context-header>*:nth-child(2) {
+    background-color: transparent;
+}
+
+.page-context-header>*:nth-child(2) h1 {
+    color: var(--alternate-background);
+}
+
+.page-header-image.icon-size-7 {
+    padding-top: 12px;
+}
+
+.header-action .btn-group.course-manage {
+    position: absolute;
+    right: 10px;
+    top: 180px;
+}
+
+// Tarjetas Evidencias
+
+.description.card-body {
+    background-color: unset;
+    border-radius: unset;
+    box-shadow: unset;
+}
+
+// Tarjetas cursos
+.card-body.pr-1.course-info-container {
+    background-color: unset;
+    box-shadow: unset;
+}
+
+.card-img.dashboard-list-img.mw-100 {
+    border-radius: 12px;
+}
+
+// Circulos de los bloques
+
+.columnleft .card-title:before {
+    position: absolute;
+    content: "";
+    width: 0.938rem;
+    height: 0.938rem;
+    border-radius: 50%;
+    border: 0.06rem solid var(--primary);
+    top: 1.5rem;
+    right: -1.55rem;
+    background: var(--primary-background);
+}
+
+.columnright .card-title:before {
+    position: absolute;
+    content: "";
+    width: 0.938rem;
+    height: 0.938rem;
+    border-radius: 50%;
+    border: 0.06rem solid var(--primary);
+    top: 1.5rem;
+    left: -1.55rem;
+    background: var(--primary-background);
+}
+
+// botones
+
+.btn {
+    border-radius: 12px;
+    font-family: $font-family-sans-serif;
+    font-size: 0.875em;
+}
+
+// Corección de colores en el navbar
+
+span.login,
+.navbar label,
+.navbar a,
+.navbar i {
+    color: white;
+}
+
+// Notifiaciones
+
+.popover-region-container i,
+.popover-region-container a.see-all-link {
+    color: var(--primary);
+}
+
+.navbar .popover-region-container {
+    top: 39px;
+}
+
+// Correciión de pagina
+
+#page {
+    margin-top: 0;
+}
+
+// Listas desplegables
+
+a.dropdown-item {
+    color: var(--alternate-background);
+}
+
+a.dropdown-item:hover {
+    color: var(--color-info);
+}
+
+// Tarjetas o Bloques
+
+.block a {
+    color: var(--alternate-background);
+    text-decoration: none;
+    background-color: transparent;
+}
+
+.card-text.content.calendarwrapper {
+    padding: 0.375rem;
+}
+
+.card {
+    border-radius: 12px;
+}
+
+.card-body h3.lead {
+    color: #39a900;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    background-color: var(--color-info);
+    padding: 0.5rem;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+// Quiz#
+#quiz-timer-wrapper {
+    position: unset;
+}
+
+//tarjetas navegacion
+.card-body,
+.block {
+    background-color: var(--secondary-background);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+// Color en los hover de los links en los bloques
+
+.block_navigation .block_tree .tree_item.branch:hover,
+.block_settings .block_tree .tree_item.branch:hover,
+p.tree_item.hasicon.tree_item.leaf:hover,
+p.tree_item.hasicon.active_tree_node.tree_item.leaf:hover {
+    background-color: #f2ffe5;
+    border-radius: 12px;
+
+}
+
+// Filtros calendario
+
+.header.d-flex.flex-wrap.p-1 {
+    gap: 12px;
+}
+
+//calendario
+.calendarwrapper {
+    position: unset;
+    background-color: white;
+    border-radius: 12px;
+}
+
+.maincalendar .calendarmonth {
+    width: 98%;
+    border: 10px;
+}
+
+.maincalendar .calendarmonth td,
+.maincalendar .calendarmonth th {
+    border: 1px solid #d6d6d6;
+}
+
+.d-inline {
+    display: flex;
+}
+
+
+// Perfil usuarios
+.userprofile .profile_tree {
+    column-count: 3;
+}
+
+.card-body.p-2.m-1,
+.card.dashboard-card.mb-1 {
+    background-color: var(--color-info);
+    border: unset;
+    box-shadow: unset;
+}
+
+// accecibilidad
+
+.accessibility {
+    position: fixed;
+    z-index: 3;
+    right: 0;
+    top: 219px;
+    gap: 4px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.accessibility__container {
+    display: flex;
+    align-items: center;
+}
+
+.accessibility__button {
+    background-color: #fbad20;
+    border: none;
+    border-radius: 12px 0 0 12px;
+    cursor: pointer;
+    display: flex;
+    transition: background-color 0.25s ease-in-out;
+}
+
+.accessibility__text {
+    position: fixed;
+    background-color: var(--alternate-background);
+    color: var(--color-info);
+    border-radius: 6px 0 0 6px;
+    max-width: 0px;
+    text-align: center;
+    transition: max-width 0.5s ease-in-out;
+    overflow: hidden;
+    right: 1.5rem;
+    padding: 8px 0px;
+    white-space: nowrap;
+    width: 170px;
+    z-index: -1;
+}
+
+.accessibility__icon {
+    width: 42px;
+    height: 42px;
+}
+
+.accessibility__button:hover {
+    background-color: var(--primary);
+    transition: background-color 0.25s ease-in-out;
+}
+
+.accessibility__button:hover~.accessibility__text {
+    padding: 8px 5px;
+    max-width: 200px;
+    transition: max-width 0.5s ease-in-out;
+}
+
+// Titulos
+
+h1,
+.h1 {
+    font-size: 1rem;
+    margin: 0;
+}
+
+h3,
+.h3 {
+    font-size: 1.17rem;
+
+
+}
+
+// Centro de calificaciones
+.gradeparent {
+    overflow-x: scroll;
+}
+
+.path-grade-report-grader .gradeparent tr.heading {
+    position: unset;
+
+}
+
+.path-grade-report-grader .gradeparent th.header {
+    position: unset;
+}
+
+.path-grade-report-grader .gradeparent tr.lastrow:not(.userrow) {
+    bottom: -1px;
+    position: unset;
+}
+
+// Foto de perfil
+
+.userpicture,
+.userinitials {
+    border: 2px solid var(--primary);
+    margin-right: 4px;
+
+}
+
+.list-group.list-group-flush {
+    border-radius: 12px;
+}
+
+
+// Bordes de inputs
+.rounded {
+    border-radius: 12px !important;
+}
+
+// Selectores
+
+.custom-select {
+    border-radius: 12px;
+}
+
+
+// Focus color
+
+.aabtn.focus,
+.aabtn:focus,
+.btn-link.focus,
+.btn-link:focus,
+.nav-link.focus,
+.nav-link:focus,
+.editor_atto_toolbar button.focus,
+.editor_atto_toolbar button:focus,
+.editor_atto_toolbar .atto_toolbar_row.focus,
+.editor_atto_toolbar .atto_toolbar_row:focus,
+[role="button"].focus,
+[role="button"]:focus,
+.list-group-item-action.focus,
+.list-group-item-action:focus,
+input[type="checkbox"].focus,
+input[type="checkbox"]:focus,
+input[type="radio"].focus,
+input[type="radio"]:focus,
+input[type="file"].focus,
+input[type="file"]:focus,
+input[type="image"].focus,
+input[type="image"]:focus,
+.sr-only-focusable.focus,
+.sr-only-focusable:focus,
+a.dropdown-toggle.focus,
+a.dropdown-toggle:focus,
+.moodle-dialogue-base .closebutton.focus,
+.moodle-dialogue-base .closebutton:focus,
+button.close.focus,
+button.close:focus,
+.form-autocomplete-selection.focus,
+.form-autocomplete-selection:focus,
+.modal-dialog[tabindex="0"].focus .modal-content,
+.modal-dialog[tabindex="0"]:focus .modal-content,
+[role="treeitem"]:not([aria-expanded="true"]).focus,
+[role="treeitem"]:not([aria-expanded="true"]):focus {
+    outline: 0;
+    box-shadow: unset;
+}
+
+// Lista cursos
+
+.list-group {
+    gap: 12px;
+}
+
+.overlay-icon-container,
+.list-group-item.course-listitem.border-left-0.border-right-0.border-top-0.px-2.rounded-0 {
+    border-radius: 12px !important;
+}
+
+// Correción navbar footer
+
+.nav navbar-nav.d-md-none .list-unstyled.pt-3 {
+    text-align: center;
+}
+
+// Titulo cursos
+.paged-content-page-container a {
+    font-weight: bold;
+}
+
+// Clases de boostrap creadas o sobreescritas
+
+.text-alternate-background a,
+.text-alternate-background h1 {
+    color: var(--alternate-background);
+}
+
+.bg-alternate-background {
+    background-color: var(--alternate-background);
+}
+
+.tertiary-navigation.full-width-bottom-border {
+    width: 100%;
+}
+
+
+
+
+// Responsive
+
+@media (max-width: 992px) {
+    .userprofile .profile_tree {
+        column-count: 2;
+    }
+
+}
+
+@media (max-width: 480px) {
+    .navbar .popover-region .popover-region-container {
+        top: 56px;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .columnright .card-title:before,
+    .columnleft .card-title:before {
+        display: none;
+    }
+
+    .userprofile .profile_tree {
+        column-count: 1;
+    }
+
+    .nav-tabs:not(.more-nav),
+    .nav-pills {
+        margin: 0;
+        border: 0;
+        background-color: #e9ecef;
+        display: flex;
+        flex-direction: column;
+        margin-top: 53px;
+    }
+
+    .tabla_reportes {
+        overflow-x: scroll;
+    }
+
+    .header-action .btn-group.course-manage {
+        top: 186px;
+    }
+
+    .path-mod-assign .page-context-header .page-header-headings {
+        margin-top: 0;
+    }
+
+    .blockcolumn,
+    .region-main {
+        margin-bottom: 0;
+    }
+}
+
+@media (min-width: 1200px) {
+    #page-content.blocks-pre .region-main #region-main {
+        border: 0;
+        padding: 0;
+        border-radius: 0;
+    }
+
+}
+
+@media (min-width: 992px) {
+    #page-content.blocks-pre .region-main #region-main {
+        border: 0;
+        padding: 0;
+        border-radius: 0;
+    }
+
+    .path-admin-reportbuilder.pagelayout-popup .dynamictabs .nav-tabs {
+        position: fixed;
+        width: calc(100% - 35px);
+        top: 51px;
+        padding-top: 0%;
+        z-index: 1000;
+    }
+
+}
+
+@media (min-width: 768px) {
+    #page-content.blocks-pre .region-main #region-main {
+        border: 0;
+        padding: 0;
+        border-radius: 0;
+    }
+
+}
+
+
+#fitem_id_moodlenetprofile,
+#fitem_id_idnumber,
+#fitem_id_department,
+#id_moodle_additional_names {
+    display: none;
+}
+
+// #fitem_id_institution,
+
+
+
+// Ocultar Asistencia en administracion de cursos
+
+li>p>a[href*="/zajuna/local/asistencia/index.php?courseid="] {
+    display: none;
+    visibility: hidden
+}
+
+/* Ajustar slider para que no se desborde en pantallas grandes */
+.zajuna-slider-img {
+    max-height: 400px;     /* Controla la altura */
+    width: 100%;           /* Ocupa todo el ancho disponible */
+    object-fit: cover;     /* Mantiene proporciones */
+    display: block;        /* Evita espacios extra */
+}
+
+/* Limitar el contenedor del carrusel */
+#zajunaCarousel {
+    max-height: 400px;
+    max-width: 1100px;     /* Ajusta el ancho máximo que quieras */
+    margin: 0 auto;        /* Centra el carrusel */
+    overflow: hidden;      /* Evita que la imagen se desborde */
+}
