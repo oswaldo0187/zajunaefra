@@ -1,0 +1,25 @@
+graph TD
+    subgraph "Administrador"
+        A[Gestionar Sliders] --> A1[Crear nuevo slide]
+        A --> A2[Editar slide existente]
+        A --> A3[Eliminar slide]
+        A --> A4[Cambiar orden de slides]
+        A --> A5[Activar/Desactivar slides]
+        
+        A1 --> A1_1[Subir imagen para escritorio]
+        A1 --> A1_2[Subir imagen para móvil]
+        A1 --> A1_3[Ingresar nombre y descripción]
+        A1 --> A1_4[Configurar URL]
+        
+        A2 --> A2_1[Actualizar imágenes]
+        A2 --> A2_2[Modificar información]
+        A2 --> A2_3[Cambiar estado]
+    end
+    
+    subgraph "Usuario final"
+        B[Visualizar slider] --> B1[Ver imágenes en carrusel]
+        B1 --> B2[Hacer clic en slide]
+        B2 --> B3[Navegar a URL destino]
+        
+        B4[Visualizar en dispositivo móvil] --> B5[Ver versión móvil de imágenes]
+    end 

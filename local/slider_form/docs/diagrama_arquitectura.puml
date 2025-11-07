@@ -1,0 +1,103 @@
+@startuml Arquitectura del Plugin Slider
+
+' Estilos
+skinparam component {
+    BackgroundColor LightBlue
+    BorderColor Black
+    ArrowColor Black
+}
+
+' Capa de Presentación
+package "Capa de Presentación" {
+    [Frontend Slider] as frontend
+    [Formularios Admin] as forms
+    [Tablas Gestión] as tables
+    [Modales] as modals
+}
+
+' Capa de Control
+package "Capa de Control" {
+    [Controlador Principal] as controller
+    [Gestor de Formularios] as form_manager
+    [Gestor de Tablas] as table_manager
+    [Gestor de Modales] as modal_manager
+    [Gestor de Caché] as cache_manager
+}
+
+' Capa de Validación
+package "Capa de Validación" {
+    [Validador de Sesión] as session_validator
+    [Validador de Permisos] as permission_validator
+    [Validador de CSRF] as csrf_validator
+    [Validador de Imágenes] as image_validator
+}
+
+' Capa de Datos
+package "Capa de Datos" {
+    [Modelo Slider] as model
+    [Gestor de Base de Datos] as db_manager
+    [Gestor de Archivos] as file_manager
+    [Sistema de Caché] as cache_system
+}
+
+' Capa de Utilidades
+package "Capa de Utilidades" {
+    [Funciones Auxiliares] as utils
+    [Procesador de Imágenes] as image_processor
+    [Gestor de Configuración] as config_manager
+}
+
+' Relaciones Frontend
+frontend --> controller
+forms --> form_manager
+tables --> table_manager
+modals --> modal_manager
+
+' Relaciones Controlador
+controller --> form_manager
+controller --> table_manager
+controller --> modal_manager
+controller --> cache_manager
+controller --> model
+
+' Relaciones Validación
+form_manager --> session_validator
+form_manager --> permission_validator
+form_manager --> csrf_validator
+form_manager --> image_validator
+
+' Relaciones Datos
+model --> db_manager
+model --> file_manager
+model --> cache_system
+
+' Relaciones Utilidades
+controller --> utils
+form_manager --> utils
+table_manager --> utils
+modal_manager --> utils
+image_validator --> image_processor
+model --> config_manager
+
+' Notas
+note right of frontend
+  Interfaz de usuario
+  y visualización del slider
+end note
+
+note right of controller
+  Control principal
+  y coordinación
+end note
+
+note right of model
+  Gestión de datos
+  y persistencia
+end note
+
+note right of utils
+  Funciones auxiliares
+  y utilidades comunes
+end note
+
+@enduml 

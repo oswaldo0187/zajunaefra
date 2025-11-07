@@ -1,0 +1,84 @@
+@startuml Diagrama de Clases - Plugin Slider Zajunalocal
+
+' Estilos
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor LightBlue
+    ArrowColor Black
+    BorderColor Black
+}
+
+' Clases principales
+class local_slider {
+    +__construct()
+    +get_component()
+    +get_version()
+    +get_release()
+    +get_maturity()
+    +get_requires()
+}
+
+class local_slider_form {
+    +renderForm(formClassName: string, constructorParams: array)
+    +renderTable(tableColumns: array, records: array, modal: object, showOrder: boolean)
+    +renderModal(constructorParams: array, contentToShowOnModal: string)
+    +getQuantityOfRecords(tableName: string)
+    +getRecords(remainingParams: array, tableName: string)
+}
+
+class local_slider_controller {
+    +loadSwiperAssets()
+    +generateSlider(images: array)
+    +getImages()
+    +slider()
+}
+
+class local_slider_utils {
+    +sortedByAttribute(arrayObject: array, attribute: string)
+    +generateImageValues(images: array)
+    +deleteValuesFromArray(array: array, keysToDelete: array)
+    +deleteSliderCache()
+    +getCurrentDate()
+}
+
+class local_slider_validator {
+    +checkSession(type: string, message: array)
+    +checkUserRole(type: string, message: array)
+    +checkCsrfToken(sesskey: string)
+    +checkImagesNotBeTheSame(images: array)
+    +checkRequiredImages(images: array)
+    +checkImagesContent(images: array)
+}
+
+class local_slider_table {
+    -id: int
+    -name: string
+    -desktop_image: string
+    -mobile_image: string
+    -desktop_image_name: string
+    -mobile_image_name: string
+    -description: string
+    -url: string
+    -state: string
+    -order_display: int
+    -created_by: int
+    -updated_by: int
+    -created_at: datetime
+    -updated_at: datetime
+}
+
+' Relaciones
+local_slider_form --> local_slider_table : manages
+local_slider_controller --> local_slider_table : displays
+local_slider_form --> local_slider_utils : uses
+local_slider_form --> local_slider_validator : uses
+local_slider_controller --> local_slider_utils : uses
+local_slider --> local_slider_controller : initializes
+local_slider --> local_slider_form : initializes
+
+note right of local_slider
+  Plugin principal de Zajunalocal
+  ubicado en Zajunalocal/local/slider
+end note
+
+@enduml 

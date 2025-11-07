@@ -1,0 +1,72 @@
+graph TB
+    subgraph "Frontend"
+        UI[Interfaz de Usuario]
+        JS[JavaScript/jQuery]
+        CSS[Estilos CSS]
+    end
+    
+    subgraph "Plugins"
+        subgraph "Slider Plugin"
+            SC[Controller]
+            SV[View]
+            SL[Lib Functions]
+        end
+        
+        subgraph "Slider Form Plugin"
+            SFC[Forms Controller]
+            SFV[Form Views]
+            SFT[TableManager]
+            SFM[Modal Component]
+            SFU[Utils]
+        end
+    end
+    
+    subgraph "Backend"
+        API[API Controllers]
+        VAL[Validaciones]
+        IMG[Gestión de Imágenes]
+        CACHE[Sistema de Caché]
+    end
+    
+    subgraph "Base de Datos"
+        DB[(LOCAL_SLIDER)]
+    end
+    
+    %% Conexiones Frontend con Plugins
+    UI --> SV
+    UI --> SFV
+    JS --> SC
+    JS --> SFC
+    
+    %% Conexiones internas de Slider Plugin
+    SC --> SL
+    SC --> SV
+    
+    %% Conexiones internas de Slider Form Plugin
+    SFC --> SFV
+    SFC --> SFT
+    SFC --> SFM
+    SFC --> SFU
+    
+    %% Conexiones con Backend
+    SC --> API
+    SFC --> API
+    API --> VAL
+    API --> IMG
+    API --> CACHE
+    
+    %% Conexiones con Base de Datos
+    API --> DB
+    CACHE -.-> DB
+    
+    %% Leyenda estilos
+    classDef frontend fill:#f9d6d6,stroke:#333,stroke-width:1px;
+    classDef backend fill:#d6e7f9,stroke:#333,stroke-width:1px;
+    classDef database fill:#d6f9e7,stroke:#333,stroke-width:1px;
+    classDef plugins fill:#f9f9d6,stroke:#333,stroke-width:1px;
+    
+    %% Aplicar estilos
+    class UI,JS,CSS frontend;
+    class SC,SV,SL,SFC,SFV,SFT,SFM,SFU plugins;
+    class API,VAL,IMG,CACHE backend;
+    class DB database; 

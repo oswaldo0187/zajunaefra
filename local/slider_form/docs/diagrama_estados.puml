@@ -1,0 +1,40 @@
+@startuml Diagrama de Estados - Plugin Slider Moodle
+' Estilos
+skinparam state {
+    BackgroundColor LightBlue
+    BorderColor Black
+    ArrowColor Black
+}
+
+[*] --> Instalado : Instalación del plugin Slider
+Instalado --> Inactivo : Crear registro en base de datos según las imagenes
+Inactivo --> Activo : Activar
+Activo --> Inactivo : Desactivar
+Activo --> Activo : Actualizar orden
+Activo --> [*] : Eliminar
+Inactivo --> [*] : Eliminar
+
+state Activo {
+    [*] --> CargandoImagenes
+    CargandoImagenes --> ValidandoImagenes
+    ValidandoImagenes --> GuardandoEnCache
+    GuardandoEnCache --> MostrandoSlider
+    MostrandoSlider --> [*]
+}
+
+state Inactivo {
+    [*] --> RegistroCreado
+    RegistroCreado --> [*]
+}
+
+note right of Instalado
+  Plugin instalado en
+  zajunalocal/local/slider
+end note
+
+note right of Activo
+  Estado de visualización
+  del slider en el frontend
+end note
+
+@enduml 

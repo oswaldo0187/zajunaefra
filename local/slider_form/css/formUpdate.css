@@ -1,0 +1,42 @@
+.image-content-manager {
+
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+
+}
+
+.image-content-manager > :first-child  {
+
+    width: fit-content;
+    justify-self: end;
+    align-self: end;
+
+}
+
+.image-content-manager > :first-child > select {
+
+    border-radius: .5rem;
+    padding: .375rem .55rem;
+
+}
+
+.alert {
+    transition: opacity 0.5s ease-in-out;
+    opacity: 1;
+}
+
+.alert-hidden {
+    opacity: 0;
+}
+
+/* Roles checkbox layout: two columns */
+.roles-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+}
+
+.roles-wrapper > div {
+    flex: 0 0 45%;
+}

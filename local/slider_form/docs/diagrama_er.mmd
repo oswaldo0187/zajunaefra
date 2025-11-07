@@ -1,0 +1,27 @@
+erDiagram
+    LOCAL_SLIDER {
+        int id PK
+        text name
+        text desktop_image
+        text mobile_image
+        text desktop_image_name
+        text mobile_image_name
+        text description
+        text url
+        text state
+        int order_display
+        int created_by FK
+        int updated_by FK
+        datetime created_at
+        datetime updated_at
+    }
+
+    USER {
+        int id PK
+        string username
+        string firstname
+        string lastname
+        string email
+    }
+    
+    USER ||--o{ LOCAL_SLIDER : "created_by/updated_by" 

@@ -1,0 +1,81 @@
+@startuml Diagrama de Historias de Usuario - Plugin Slider
+
+' Estilos
+skinparam rectangle {
+    BackgroundColor LightBlue
+    BorderColor Black
+}
+
+rectangle "Gestión del Slider" as gestor {
+    rectangle "Administración" as admin {
+        rectangle "Gestión de Imágenes" as imagenes {
+            rectangle "Subir Imágenes" as subir
+            rectangle "Validar Formato" as validar
+            rectangle "Prevenir Duplicados" as duplicados
+        }
+        
+        rectangle "Gestión de Registros" as registros {
+            rectangle "Crear Registro" as crear
+            rectangle "Editar Registro" as editar
+            rectangle "Eliminar Registro" as eliminar
+            rectangle "Ordenar Registros" as ordenar
+        }
+        
+        rectangle "Seguridad" as seguridad {
+            rectangle "Validar Sesión" as sesion
+            rectangle "Verificar Permisos" as permisos
+            rectangle "Proteger CSRF" as csrf
+        }
+    }
+    
+    rectangle "Visualización" as visual {
+        rectangle "Frontend" as front {
+            rectangle "Mostrar Slider" as mostrar
+            rectangle "Adaptar a Dispositivo" as adaptar
+            rectangle "Navegación" as navegar
+        }
+        
+        rectangle "Optimización" as optimizacion {
+            rectangle "Caché de Imágenes" as cache
+            rectangle "Carga Lazy" as lazy
+        }
+    }
+}
+
+' Relaciones
+gestor --> admin
+gestor --> visual
+
+admin --> imagenes
+admin --> registros
+admin --> seguridad
+
+visual --> front
+visual --> optimizacion
+
+imagenes --> subir
+imagenes --> validar
+imagenes --> duplicados
+
+registros --> crear
+registros --> editar
+registros --> eliminar
+registros --> ordenar
+
+seguridad --> sesion
+seguridad --> permisos
+seguridad --> csrf
+
+front --> mostrar
+front --> adaptar
+front --> navegar
+
+optimizacion --> cache
+optimizacion --> lazy
+
+note right of gestor
+  Plugin Slider para Moodle
+  Zajunalocal
+end note
+
+@enduml 

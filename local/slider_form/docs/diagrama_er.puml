@@ -1,0 +1,52 @@
+@startuml Diagrama ER - Plugin Slider Moodle
+
+' Estilos
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor LightBlue
+    ArrowColor Black
+    BorderColor Black
+}
+
+' Entidades
+entity "local_slider" as slider {
+    + id: int <<PK>>
+    --
+    name: varchar(100)
+    desktop_image: text
+    mobile_image: text
+    desktop_image_name: varchar(100)
+    mobile_image_name: varchar(100)
+    description: varchar(200)
+    url: varchar(500)
+    state: text
+    order_display: int
+    created_by: int
+    updated_by: int
+    created_at: datetime
+    updated_at: datetime
+}
+
+entity "user" as user {
+    + id: int <<PK>>
+    --
+    username: varchar(100)
+    firstname: varchar(100)
+    lastname: varchar(100)
+    email: varchar(100)
+}
+
+' Relaciones
+slider }|--|| user : created_by
+slider }|--|| user : updated_by
+
+note right of slider
+  Tabla principal del plugin
+  ubicada en zajunalocal/local/slider
+end note
+
+note right of user
+  Tabla de usuarios de Zajunalocal
+end note
+
+@enduml 

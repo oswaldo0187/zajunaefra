@@ -1,0 +1,80 @@
+@startuml Slider Process Flow
+
+' Estilos
+skinparam ActivityBackgroundColor LightBlue
+skinparam ActivityBorderColor Blue
+skinparam ArrowColor Blue
+skinparam ActivityDiamondBackgroundColor LightGreen
+skinparam ActivityDiamondBorderColor Green
+
+' Inicio
+start
+
+' Proceso de Gestión de Imágenes
+:Iniciar Sesión como Administrador;
+
+if (¿Tiene Permisos?) then (Sí)
+    :Acceder al Panel de Gestión;
+    
+    fork
+        :Subir Imágenes;
+        if (¿Imágenes Válidas?) then (Sí)
+            :Procesar Imágenes;
+            :Guardar en Base de Datos;
+            :Actualizar Caché;
+        else (No)
+            :Mostrar Error de Validación;
+        endif
+    fork again
+        :Gestionar Imágenes Existentes;
+        if (¿Operación?) then (Actualizar)
+            :Modificar Imágenes;
+            :Actualizar Registro;
+            :Actualizar Caché;
+        else if (Eliminar)
+            :Eliminar Registro;
+            :Actualizar Caché;
+        else if (Ordenar)
+            :Modificar Orden;
+            :Actualizar Caché;
+        endif
+    end fork
+else (No)
+    :Redirigir a Página Principal;
+endif
+
+' Proceso de Visualización
+fork
+    :Usuario Accede al Slider;
+    if (¿Usuario Inició Sesión?) then (Sí)
+        :Verificar Caché;
+        if (¿Caché Válido?) then (Sí)
+            :Mostrar Imágenes desde Caché;
+        else (No)
+            :Cargar Imágenes desde Base de Datos;
+            :Actualizar Caché;
+            :Mostrar Imágenes;
+        endif
+        :Detectar Dispositivo;
+        if (¿Es Móvil?) then (Sí)
+            :Mostrar Versión Móvil;
+        else (No)
+            :Mostrar Versión Escritorio;
+        endif
+    else (No)
+        :Redirigir a Página de Login;
+    endif
+end fork
+
+' Proceso de Mantenimiento
+fork
+    :Monitorear Estado del Slider;
+    if (¿Hay Errores?) then (Sí)
+        :Registrar Error;
+        :Notificar Administrador;
+    endif
+end fork
+
+stop
+
+@enduml 

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/slider/db" VERSION="20240325" COMMENT="XMLDB file for Moodle local/slider"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="local_slider" COMMENT="Default comment for block_slider, please edit me">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="text" LENGTH="100" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="desktop_image" TYPE="text"/>
+        <FIELD NAME="mobile_image" TYPE="text"/>
+        <FIELD NAME="desktop_image_name" TYPE="text" LENGTH="100" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="mobile_image_name" TYPE="text" LENGTH="100" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="description" TYPE="text" LENGTH="200" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="url" TYPE="text" LENGTH="500" NOTNULL="false" SEQUENCE="false"/>
+  <FIELD NAME="state" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+  <FIELD NAME="course_state" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+  <FIELD NAME="order_display" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="created_by" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="updated_by" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="created_at" TYPE="datetime" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="updated_at" TYPE="datetime" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+
+    <!-- TABLA PARA REGISTRAR ERRORES -->
+    <TABLE NAME="local_slider_errors" COMMENT="Registro de errores del plugin Slider">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="errormessage" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="errorcode" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="errorfile" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="errorline" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="ip" TYPE="char" LENGTH="45" NOTNULL="false" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="timecreated" UNIQUE="false" FIELDS="timecreated"/>
+      </INDEXES>
+    </TABLE>
+
+  </TABLES>
+</XMLDB>
