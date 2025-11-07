@@ -1,0 +1,89 @@
+{\rtf1\ansi\deff0
+{\fonttbl{\f0 Arial;}}
+\viewkind4\uc1\pard\f0\fs24\b Manual de despliegue - Cambios Slider / local_slider\b0\par
+\par
+Fecha: 2025-10-16\par
+Alcance: instrucciones paso a paso para desplegar los cambios realizados en el plugin `local_slider` y el formulario `local_slider_form` en entornos de prueba o producci\'f3n.
+\par
+\b Pre-requisitos\b0\par
+- Acceso administrador al servidor y a la base de datos (pgAdmin, psql o similar).
+- Backup completo de la base de datos y de los archivos del sitio (copia de directorio Moodle).
+- Modo mantenimiento en Moodle recomendado durante despliegue.
+\par
+\b Archivos modificados / añadidos\b0\par
+- Modificados:
+  - `local/slider_form/classes/forms/Insert.php` (checkbox `course_state` a\'f1adido)
+  - `local/slider_form/classes/forms/Update.php` (checkbox `course_state` reubicado al final junto a `state`)
+  - `local/slider_form/insertRecord.php` (manejo de course_state al insertar)
+  - `local/slider_form/updateRecord.php` (manejo de course_state al actualizar)
+  - `local/slider/db/install.xml` (campo `course_state` agregado)
+  - `local/slider/db/upgrade.php` (nuevo script de upgrade para crear la columna si no existe)
+  - `local/slider/version.php` (version incrementada para que Moodle detecte upgrade)
+  - `local/slider/lib/showSlider.php` (filtrado por course_state y cache keys por sitio/curso)
+  - `theme/zajuna/lib.php` (filtrado por course_state en el theme que inyecta slider)
+  - `local/slider_form/classes/table/Table_manage.php` (lista y toggle show in course)
+  - `local/slider_form/classes/forms/Update.php` (reubicaci\'f3n del checkbox)
+
+- Añadidos:
+  - `local/slider/db/upgrade.php` (creaci\'f3n)
+  - (Opcional) `local/slider/clear_slider_cache.php` (script temporal sugerido para limpiar cache)
+  - `docs/Informe_Detallado_Trabajo.rtf` (este documento)
+  - `docs/Manual_Despliegue_Slider.rtf` (este documento)
+
+\b Pasos de despliegue recomendados en producci\'f3n\b0\par
+1. Backup
+   - Realizar backup completo de la base de datos y archivos del sitio.
+   - pgAdmin: clic derecho DB -> Backup... (elegir formato Plain o Custom)
+   - Alternativa: `pg_dump` o herramientas del proveedor.
+\par
+2. Poner el sitio en modo mantenimiento
+   - Administración del sitio -> Mantenimiento -> Activar modo mantenimiento.
+\par
+3. Desplegar archivos al servidor
+   - Copiar los archivos modificados/nuevos al servidor (mantener permisos y propietarios correctos).
+   - Si usas control de versiones: hacer merge y checkout de la rama de despliegue.
+\par
+4. Ejecutar la migraci\'f3n de la base de datos
+   - Opcion A (recomendada): ir a Administración del sitio -> Notificaciones. Moodle detecta el nuevo `version.php` y ejecuta `local/slider/db/upgrade.php` para crear la columna `course_state` si no existe.
+   - Opcion B (manual con SQL): ejecutar (PostgreSQL) desde psql o Query Tool:
+\par
+{\pard\li360\tx360\f0\'95 -- A\'f1adir columna course_state como SMALLINT y valor por defecto 0\par
+ALTER TABLE mdl_local_slider ADD COLUMN course_state TEXT;\par
+-- (Despu\'e9s, opcional convertir a entero tras normalizar)\par
+ALTER TABLE mdl_local_slider ALTER COLUMN course_state TYPE SMALLINT USING (CASE WHEN trim(course_state) = '1' THEN 1 ELSE 0 END);\par
+ALTER TABLE mdl_local_slider ALTER COLUMN course_state SET DEFAULT 0;\par
+ALTER TABLE mdl_local_slider ALTER COLUMN course_state SET NOT NULL;\par
+\pard}
+
+Notas:
+- Ajustar `mdl_` si tu prefijo es distinto.
+- Si ejecutas el upgrade a través de Notificaciones, el script `local/slider/db/upgrade.php` ya gestiona la creaci\'f3n condicional.
+
+5. Purga de cach\'e y reconstrucci\'f3n
+   - Administraci\'f3n del sitio -> Desarrollo -> Purga de todas las cach\'es.
+   - Si el pluginusa cache store, podr\'e1 ser necesario usar `cache::make('local_slider','imagecache')->delete_all()` o ejecutar el script temporal `clear_slider_cache.php` para vaciar claves espec\'edfifcas.
+
+6. Verificar UI y funcionalidad
+   - Ir a Local -> Gestionar im\'e1genes -> Agregar y Editar. Verificar que el checkbox `Activar imagen en Banner de curso` aparece y se guarda.
+   - Probar en un curso: si una imagen tiene `course_state = 1` debe verse en el banner del curso (y si 0 no).
+
+7. Revertir cambios temporales
+   - Si se aplic\'f3 un parche temporal en `mod/imagecarousel/version.php`, revertirlo al c\'f3digo original cuando se tenga la versi\'f3n correcta del plugin.
+   - Eliminar scripts temporales de la webroot (ej. `clear_slider_cache.php`).
+
+\b Recomendaciones posteriores al despliegue\b0\par
+- Convertir `course_state` a tipo num\'e9rico SMALLINT para coherencia si ya se ha normalizado el contenido.
+- Añadir cadenas de idioma `course_state` y `course_state_help` en `local/slider_form/lang/es/local_slider_form.php` y `.../en/...`.
+- Incluir pruebas de regresi\'f3n para asegurar que no se rompieron otros sliders (p.ej. `imagecarousel`).
+
+\b Rollback (si algo sale mal)\b0\par
+1. Restaurar backup de BD y archivos.
+2. Revertir los cambios en el c\'f3digo (git revert / restore) y limpiar cach\'es.
+3. Desactivar modo mantenimiento.
+
+\b Contactos y notas finales\b0\par
+- Documenta cualquier cambio adicional que se haga en otro entorno. Mantener un registro de la versi\'f3n final del plugin tras deploy.
+
+\par
+Fin del manual.
+}

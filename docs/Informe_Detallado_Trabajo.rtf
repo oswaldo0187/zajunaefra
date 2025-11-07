@@ -1,0 +1,124 @@
+{\rtf1\ansi\deff0
+{\fonttbl{\f0 Arial;}{\f1 Times New Roman;}}
+{\colortbl;\red0\green0\blue0;}
+\viewkind4\uc1\pard\f0\fs24\b Informe detallado del trabajo realizado en el plugin Slider / local_slider\b0\par
+\par
+Fecha: 2025-10-16\par
+Autor: Equipo técnico (resumen realizado por asistente)\par
+\par
+\b Resumen ejecutivo\b0\par
+Se implementaron cambios para añadir y gestionar una nueva opción "Activar imagen en Banner de curso" en el módulo slider de la plataforma (local_slider + local_slider_form), incluyendo:
+\par
+- Añadido checkbox en formularios de inserci\'f3n y actualizaci\'f3n.
+- Persistencia en la base de datos mediante nueva columna `course_state`.
+- Script de upgrade para instalaciones existentes (`local/slider/db/upgrade.php`).
+- Ajustes en la l\'f3gica de visualizaci\'f3n (tema + librer\'eda del slider) para respetar `course_state` dentro de cursos.
+- Correcciones auxiliares: manejo de cach\'e, logging temporal, y ajuste temporal de versión de plugin conflictivo para completar el upgrade.
+\par
+\b Detalle paso a paso de las acciones realizadas\b0\par
+1) Localizaci\'f3n del formulario y checkbox existente\par
+- Archivo buscado: `local/slider_form/classes/forms/Insert.php`\par
+- Se confirm\'f3 que el formulario de inserci\'f3n ya conten\'eda el checkbox `state` para activar en la plataforma.
+\par
+2) Añadir checkbox "Activar imagen en Banner de curso"\par
+- Archivo: `local/slider_form/classes/forms/Insert.php` (formulario de inserci\'f3n)
+  - L\'edito: se a\'f1adi\'f3 el elemento advcheckbox `course_state` con help button.
+  - L\'edito la l\'edita para mostrar ayuda.
+\par
+- Archivo: `local/slider_form/classes/forms/Update.php` (formulario de actualizaci\'f3n)
+  - Inicialmente se a\'f1adi\'f3 en un lugar no deseado; posteriormente se reubic\'f3 para que aparezca debajo del checkbox `state`.
+  - Resultado final: `course_state` est\'e colocado junto a `state` para coherencia UI.
+\par
+3) Persistencia en la base de datos (insert/update)\par
+- Archivo: `local/slider_form/insertRecord.php`
+  - Asegurado que la propiedad `course_state` exista antes de insertar. Si no viene en la petici\'f3n, se asigna valor por defecto '0'.
+  - Se mantiene formato esperado (cadena '1'/'0') para compatibilidad con el resto del c\'f3digo.
+
+- Archivo: `local/slider_form/updateRecord.php`
+  - Se comprueba/asegura `course_state` y se incluye al actualizar.
+  - Se convierten los arrays a objeto `(object)` previo a $DB->update_record.
+\par
+4) Agregar columna a la tabla `local_slider`\par
+- Archivo de definici\'f3n DB: `local/slider/db/install.xml` se actualiz\'f3 para incluir el campo:
+  - `<FIELD NAME="course_state" TYPE="text" NOTNULL="false" SEQUENCE="false"/>`
+- Para instalaciones existentes: se cre\'f3 un script de upgrade:
+  - Archivo: `local/slider/db/upgrade.php`
+  - Contiene la funci\'f3n `xmldb_local_slider_upgrade($oldversion)` que anade el campo solo si no existe.
+  - Savepoint y n\'famero de upgrade configurados (2025101700) y actualizado `local/slider/version.php` acorde.
+- Acci\'f3n ejecutada en BD en tu entorno (PostgreSQL) mediante Query Tool: la columna `course_state` fue creada y actualmente es de tipo `text`.
+\par
+5) Adaptar la visualizaci\'f3n del slider para respetar `course_state`\par
+- Archivo: `local/slider/lib/showSlider.php`
+  - Modificada la funci\'f3n `getImages($onlycourse = false)` para que si se solicita im\'e1genes para un curso (par\'e1metro $onlycourse=true) incluya en la consulta `AND course_state = ?` y use el valor '1'.
+  - La funci\'f3n `slider()` detecta si el contexto es de curso (`$COURSE->id > 1`) y pide `getImages(true)` y adem\'fas separa las claves de cach\'e en `images_site` e `images_course`.
+
+- Archivo: `theme/zajuna/lib.php`
+  - Funciones `theme_zajuna_get_slider_images()` y `theme_zajuna_get_slider_data()` actualizadas para filtrar `course_state` cuando el contexto es de curso.
+  - Asegurado que la inyecci\'f3n de slider en el template tenga en cuenta el flag y devuelva solo im\'e1genes con course_state=1 cuando se est\'e en un curso.
+\par
+6) Cach\'e y pruebas
+- Se implementaron claves de cach\'e distintas: `images_site` y `images_course` en el store `local_slider/imagecache`.
+- Se cre\'f3 un script temporal (manual) `local/slider/clear_slider_cache.php` (sugerido) para eliminar datos de cach\'e durante pruebas.
+- Se purgaron cach\'es desde Moodle (Administraci\'f3n -> Desarrollo -> Purga de todas las cach\'es) y se verific\'f3 en BD que los valores `course_state` se actualizan correctamente (ejemplos: IMG2 y IMG3 con 1, IMG1 y IMG4 con 0).
+\par
+7) Cambios auxiliares por conflicto de versiones
+- Se detect\'f3 un conflicto de versiones con `mod_imagecarousel` durante Notificaciones (error cannotdowngrade). Para permitir que Moodle complete la secuencia de actualizaci\'f3n, aplicamos temporalmente:
+  - `mod/imagecarousel/version.php` se actualiz\'f3 para igualar la versi\'f3n que la BD ten\'eda (2025101502). Esto es temporal y se document\'f3 como tal.
+\par
+8) Interfaz de gesti\'f3n y botones
+- Se actualiz\'f3 la tabla de gesti\'f3n (`local/slider_form/classes/table/Table_manage.php`) para mostrar un bot\'f3n toggle y para enlazar a `local/slider_form/toggle_showincourse.php` (ya exist\'eda) con sesskey.
+\par
+\b Lista completa de archivos creados o modificados\b0\par
+(archivos modificados en su ruta dentro del repositorio)
+\par
+\pard\li360\bullet insertado o modificado:\tab\par
+\pard\fi-360\li720\tx720
+\tab \f1\'95 `local/slider_form/classes/forms/Insert.php`\par
+\tab \f1\'95 `local/slider_form/classes/forms/Update.php` (reubicaci\'f3n del checkbox `course_state`)\par
+\tab \f1\'95 `local/slider_form/insertRecord.php` (incluir course_state por defecto)\par
+\tab \f1\'95 `local/slider_form/updateRecord.php` (incluir course_state en update)
+\par
+\tab \f1\'95 `local/slider/db/install.xml` (campo course_state agregado)
+\tab \f1\'95 `local/slider/db/upgrade.php` (script de upgrade creado)
+\tab \f1\'95 `local/slider/version.php` (version actualizada a 2025101700 para forzar upgrade)
+\tab \f1\'95 `local/slider/lib/showSlider.php` (filtrado por course_state y cache keys)
+\tab \f1\'95 `theme/zajuna/lib.php` (filtrado por course_state en theme)
+\tab \f1\'95 `local/slider_form/classes/table/Table_manage.php` (boton toggle y columna mostrar en cursos)
+\tab \f1\'95 `local/slider_form/classes/forms/Update.php` (posicionamiento del checkbox reubicado)
+\par
+\pard\sa200\sl276\slmult1
+\b Cambios temporales / de prueba (recomendar eliminar o revertir tras verificado)\b0\par
+- `mod/imagecarousel/version.php` (ajuste temporal para continuar upgrade)
+- Script temporal sugerido: `local/slider/clear_slider_cache.php` (para borrar claves de cach\'e durante pruebas)\par
+\par
+\b Detalle de cambios en la base de datos\b0\par
+- Tabla afectada: `local_slider` (prefijo `mdl_` en tu instalaci\'f3n).\par
+- Columna nueva: `course_state`\par
+  - Tipo en tu entorno: TEXT (se cre\'f3 como TEXT inicialmente via install/upgrade), con valores '0' o '1' actualmente.
+  - Recomendaci\'f3n: convertir a SMALLINT (0/1) para mayor claridad. SQL propuesto para conversi\'f3n:
+    \pard\li360\tx360\f1\'95 `ALTER TABLE mdl_local_slider ALTER COLUMN course_state TYPE SMALLINT USING (CASE WHEN trim(course_state) = '1' THEN 1 ELSE 0 END);`\par
+    \pard\sa200\sl276\slmult1
+- Acciones SQL ejecutadas en pruebas: comprobaciones SELECT y actualizaciones para normalizar valores (UPDATE con CASE para forzar 0/1 cuando fuese necesario).
+\par
+\b Notas sobre validaci\'f3n y pruebas realizadas\b0\par
+- Se verific\'f3 que el checkbox existe en el formulario de inserci\'f3n y actualizaci\'f3n.\par
+- Se verific\'f3 que la columna apareci\'f3a en PostgreSQL usando Query Tool.\par
+- Se comprob\'f3 que al editar registros, los valores en BD cambian (ejemplo capturas: filas con id 1..4 muestran course_state 1/0 correspondientes).\par
+- Se purgaron cach\'es y se efectuaron pruebas en UI; adem\'e1s se implement\'f3 la logica de cache per-site/per-course para evitar mostrar im\'e1genes no autorizadas en cursos.
+\par
+\b Recomendaciones y pasos siguientes\b0\par
+1. Revisar la conversi\'f3n de `course_state` a tipo num\'e9rico (SMALLINT) para mejorar consultas y evitar inconsistencias. Realizar backup antes.
+2. Revertir el cambio temporal en `mod/imagecarousel/version.php` cuando se tenga la versi\'f3n de c\'f3digo correcta o al finalizar el despliegue.
+3. Añadir los strings de idioma `course_state` y `course_state_help` en `local/slider_form/lang/es/local_slider_form.php` para mostrar el texto de ayuda y eliminar el TODO en UI.
+4. Eliminar scripts temporales (p.ej. clear_slider_cache.php) cuando el despliegue quede verificado.
+\par
+\b Archivos para revisar manualmente tras despliegue\b0\par
+- `local/slider/db/upgrade.php`\par
+- `local/slider/version.php`\par
+- `mod/imagecarousel/version.php` (temporal)\par
+- `local/slider/lib/showSlider.php`\par
+- `theme/zajuna/lib.php`\par
+- `local/slider_form/*` (formularios y controladores)
+\par
+\b Fin del informe detallado\b0\par
+}
