@@ -31,5 +31,28 @@ function xmldb_local_slider_upgrade($oldversion = 0) {
     upgrade_plugin_savepoint(true, $newversion, 'local', 'slider');
     }
 
+    // Add visible_to_students field for controlling student visibility.
+    $newversion = 2025110701;
+
+    if ($oldversion < $newversion) {
+        // Define table local_slider to be updated.
+        $table = new xmldb_table('local_slider');
+
+        // Define field visible_to_students to be added to local_slider.
+        // Use TEXT to store '1' (visible) or '0' (hidden). Default '1'.
+        $field = new xmldb_field('visible_to_students', XMLDB_TYPE_TEXT, null, null, null, null, '1', 'course_state');
+
+        // Conditionally launch add field visible_to_students.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Set all existing records to visible by default.
+        $DB->execute("UPDATE {local_slider} SET visible_to_students = ? WHERE visible_to_students IS NULL OR visible_to_students = ?", ['1', '']);
+
+        // Slider savepoint reached.
+        upgrade_plugin_savepoint(true, $newversion, 'local', 'slider');
+    }
+
     return true;
 }

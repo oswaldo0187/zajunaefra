@@ -26,4 +26,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'slider';
-$string['title'] = 'novedades'; 
+$string['title'] = 'novedades';
+$string['hidefromstudents'] = 'Ocultar a aprendices';
+$string['showtostudents'] = 'Mostrar a aprendices';
+$string['sliderhidden'] = 'Slider ocultado para los aprendices';
+$string['slidershown'] = 'Slider ahora visible para los aprendices';

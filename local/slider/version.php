@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_slider';
-$plugin->release = '0.3.0';
-$plugin->version = 2025110401;
+$plugin->release = '0.4.0';
+$plugin->version = 2025110701;
 $plugin->requires = 2022112800;
 $plugin->maturity = MATURITY_ALPHA;

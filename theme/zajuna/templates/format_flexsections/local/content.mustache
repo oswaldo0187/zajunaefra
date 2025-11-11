@@ -86,9 +86,33 @@
 {{#slider}}
     {{#has_images}}
     <div class="zajuna-slider-wrapper" style="margin-bottom: 30px;">
-        <!-- Toggle button for slider -->
+        <!-- Toggle button for slider and action menu -->
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <h4 class="mb-0">{{title}}</h4>
+            <div class="d-flex align-items-center">
+                <h4 class="mb-0 mr-3">{{title}}</h4>
+                {{#can_edit}}
+                    {{#is_editing}}
+                    <!-- Action menu dropdown for teachers -->
+                    <div class="dropdown zajuna-slider-action-menu">
+                        <button class="btn btn-sm btn-link dropdown-toggle p-0" type="button" id="sliderActionMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-cog"></i>
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="sliderActionMenu">
+                            {{#is_visible_to_students}}
+                            <a class="dropdown-item zajuna-slider-toggle-visibility" href="#" data-action="hide" data-courseid="{{courseid}}">
+                                <i class="fa fa-eye-slash"></i> {{#str}}hidefromstudents, local_slider{{/str}}
+                            </a>
+                            {{/is_visible_to_students}}
+                            {{^is_visible_to_students}}
+                            <a class="dropdown-item zajuna-slider-toggle-visibility" href="#" data-action="show" data-courseid="{{courseid}}">
+                                <i class="fa fa-eye"></i> {{#str}}showtostudents, local_slider{{/str}}
+                            </a>
+                            {{/is_visible_to_students}}
+                        </div>
+                    </div>
+                    {{/is_editing}}
+                {{/can_edit}}
+            </div>
             <button class="btn btn-outline-primary btn-sm" type="button" data-toggle="collapse" data-target="#zajunaSliderCollapse" aria-expanded="true" aria-controls="zajunaSliderCollapse">
                 <span class="zajuna-slider-toggle-text">Ocultar</span>
                 <i class="fa fa-chevron-up zajuna-slider-toggle-icon"></i>

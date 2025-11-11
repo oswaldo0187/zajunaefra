@@ -51,17 +51,20 @@ function theme_zajuna_get_main_scss_content($theme) {
  * @return array Arreglo con información de las imágenes activas
  */
 function theme_zajuna_get_slider_images() {
-    global $DB;
+    global $DB, $COURSE, $PAGE;
 
     try {
         $dbman = $DB->get_manager();
         // Detectar si estamos en una página de curso para filtrar por course_state
-        global $COURSE;
         $iscourse = (isset($COURSE) && !empty($COURSE->id) && intval($COURSE->id) > 1);
+        
+        // Verificar si el usuario actual puede editar el curso (es profesor/admin)
+        $context = \context_course::instance($COURSE->id);
+        $can_edit = has_capability('moodle/course:update', $context);
 
         // Primero intenta con la tabla local_slider
         if ($dbman->table_exists('local_slider')) {
-            $sql = "SELECT id, desktop_image, mobile_image, url, order_display
+            $sql = "SELECT id, desktop_image, mobile_image, url, order_display, visible_to_students
                     FROM {local_slider}
                     WHERE " . $DB->sql_compare_text('state') . " = ?";
             $params = ['1'];
@@ -70,6 +73,12 @@ function theme_zajuna_get_slider_images() {
                 // Mostrar solo las imágenes que también están habilitadas para curso
                 $sql .= " AND course_state = ?";
                 $params[] = '1';
+                
+                // Si el usuario NO puede editar (es estudiante), filtrar por visibilidad
+                if (!$can_edit) {
+                    $sql .= " AND visible_to_students = ?";
+                    $params[] = '1';
+                }
             }
 
             $sql .= " ORDER BY order_display ASC";
@@ -112,10 +121,23 @@ function theme_zajuna_get_slider_images() {
  * @return array Datos del slider para el template
  */
 function theme_zajuna_get_slider_data() {
+    global $COURSE, $PAGE;
+    
     $images = theme_zajuna_get_slider_images();
     
     if (empty($images)) {
-        return ['has_images' => false, 'images' => []];
+        return ['has_images' => false, 'images' => [], 'can_edit' => false, 'is_visible_to_students' => true];
+    }
+    
+    // Verificar si el usuario puede editar
+    $context = \context_course::instance($COURSE->id);
+    $can_edit = has_capability('moodle/course:update', $context);
+    $is_editing = $PAGE->user_is_editing();
+    
+    // Determinar el estado de visibilidad (usamos el primer registro como referencia)
+    $is_visible_to_students = true;
+    if (isset($images[0]->visible_to_students)) {
+        $is_visible_to_students = ($images[0]->visible_to_students === '1');
     }
     
     $formatted_images = [];
@@ -140,7 +162,11 @@ function theme_zajuna_get_slider_data() {
     return [
         'has_images' => true,
         'images' => $formatted_images,
-        'title' => ''
+        'title' => '',
+        'can_edit' => $can_edit,
+        'is_editing' => $is_editing,
+        'is_visible_to_students' => $is_visible_to_students,
+        'courseid' => $COURSE->id
     ];
 }
 
@@ -150,10 +176,71 @@ function theme_zajuna_get_slider_data() {
  * @param moodle_page $page Objeto de página de Moodle
  */
 function theme_zajuna_load_slider_assets($page) {
-    // JavaScript personalizado para el carousel Bootstrap 4
+    // JavaScript personalizado para el carousel Bootstrap 4 y visibilidad del slider
     $page->requires->js_init_code('
         require(["jquery"], function($) {
+            console.log("Zajuna slider scripts starting...");
+            
+            // Esperar a que el DOM esté listo
             $(document).ready(function() {
+                console.log("Zajuna slider scripts loaded - DOM ready");
+                
+                // ============== VISIBILITY TOGGLE FUNCTIONALITY ==============
+                console.log("Setting up visibility toggle...");
+                
+                // Event delegation para manejar clics en el menú de acciones
+                $(document).on("click", ".zajuna-slider-toggle-visibility", function(e) {
+                    e.preventDefault();
+                    console.log("Visibility toggle clicked!");
+                    
+                    var link = $(this);
+                    var action = link.data("action");
+                    var courseid = link.data("courseid");
+                    
+                    console.log("Action:", action, "Course ID:", courseid);
+                    
+                    // Determinar el mensaje de confirmación
+                    var confirmMessage = (action === "hide") 
+                        ? "¿Está seguro que desea ocultar el banner a los aprendices?"
+                        : "¿Está seguro que desea mostrar el banner a los aprendices?";
+                    
+                    if (!confirm(confirmMessage)) {
+                        console.log("User cancelled action");
+                        return;
+                    }
+                    
+                    console.log("User confirmed, sending AJAX request");
+                    
+                    // Realizar la petición AJAX
+                    $.ajax({
+                        url: M.cfg.wwwroot + "/local/slider/toggle_visibility.php",
+                        method: "POST",
+                        data: {
+                            courseid: courseid,
+                            sesskey: M.cfg.sesskey
+                        },
+                        dataType: "json"
+                    })
+                    .done(function(response) {
+                        console.log("AJAX response:", response);
+                        
+                        if (response.success) {
+                            alert(response.message);
+                            window.location.reload();
+                        } else {
+                            alert("Error: " + (response.message || "Unknown error"));
+                        }
+                    })
+                    .fail(function(jqXHR, textStatus, errorThrown) {
+                        console.error("AJAX error:", textStatus, errorThrown);
+                        console.error("Response:", jqXHR.responseText);
+                        alert("Error al cambiar la visibilidad: " + textStatus);
+                    });
+                });
+                
+                console.log("Visibility toggle setup complete");
+                
+                // ============== CAROUSEL FUNCTIONALITY ==============
                 function initZajunaCarousel() {
                     if ($("#zajunaCarousel").length === 0) {
                         return;
@@ -185,12 +272,13 @@ function theme_zajuna_load_slider_assets($page) {
                     // Configurar imágenes iniciales
                     setResponsiveImages();
                     
-                    // Configurar carousel Bootstrap 4
-                    $("#zajunaCarousel").carousel({
-                        interval: 4000,
-                        pause: "hover",
-                        wrap: true
-                    });
+                    // Configurar carousel Bootstrap 4 - Comentado temporalmente
+                    // El carousel de Bootstrap se inicializa automáticamente con data-ride="carousel"
+                    // $("#zajunaCarousel").carousel({
+                    //     interval: 4000,
+                    //     pause: "hover",
+                    //     wrap: true
+                    // });
                     
                     // Manejar cambios de tamaño de ventana
                     $(window).on("resize", function() {

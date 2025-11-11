@@ -53,6 +53,16 @@ class content extends \core_courseformat\output\local\content {
      * @return \stdClass data context for a mustache template
      */
     public function export_for_template(\renderer_base $output) {
+        global $CFG, $PAGE;
+        
+        // Cargar assets del slider del tema zajuna
+        if (file_exists($CFG->dirroot . '/theme/zajuna/lib.php')) {
+            require_once($CFG->dirroot . '/theme/zajuna/lib.php');
+            if (function_exists('theme_zajuna_load_slider_assets')) {
+                \theme_zajuna_load_slider_assets($PAGE);
+            }
+        }
+        
         $data = parent::export_for_template($output);
 
         // If we are on course view page for particular section.
