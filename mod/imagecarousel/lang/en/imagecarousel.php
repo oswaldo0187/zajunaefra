@@ -52,6 +52,12 @@ $string['text_url'] = 'Text URL';
 $string['actions'] = 'Actions';
 $string['moveup'] = 'Move up';
 $string['movedown'] = 'Move down';
+$string['visibility'] = 'Visibility';
+$string['visible'] = 'Visible';
+$string['hidden'] = 'Hidden';
+$string['image_visibility_enabled'] = 'Image set to visible in the carousel';
+$string['image_visibility_disabled'] = 'Image hidden from the carousel';
+$string['image_visibility_toggle_error'] = 'The image could not be updated';
 
 // Messages
 $string['position_warning'] = 'Note: When using the up/down arrows you can reorder the images. Changes will be applied immediately.';
@@ -187,7 +193,7 @@ $string['image_mobile'] = 'Or use URL for mobile image';
 $string['image_mobile_help'] = 'Here you can enter a URL for the mobile image';
 $string['image_mobile_url'] = 'Here you can enter a URL for the mobile image';
 $string['error_no_desktop_image'] = 'You must upload an image or provide a URL for the desktop version';
-$string['error_text_word_limit'] = 'Text cannot exceed 300 words';
+$string['error_text_word_limit'] = 'Text cannot exceed 150 words';
 
 // Capabilities
 $string['imagecarousel:addinstance'] = 'Add a new image carousel';

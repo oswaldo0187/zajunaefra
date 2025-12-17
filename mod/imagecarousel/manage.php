@@ -35,6 +35,17 @@ if ($action === 'moveup' && $imageid >= 0) {
 } else if ($action === 'movedown' && $imageid >= 0) {
     Images::moveImage($moduleinstance->id, $imageid, 'down');
     redirect($PAGE->url, get_string('image_moved_down', 'mod_imagecarousel'));
+} else if ($action === 'togglevisibility' && $imageid >= 0) {
+    $image = $DB->get_record('imagecarousel_images', ['id' => $imageid, 'carouselid' => $moduleinstance->id]);
+    if ($image) {
+        $newvisible = empty($image->visible) ? 1 : 0;
+        $DB->set_field('imagecarousel_images', 'visible', $newvisible, ['id' => $imageid]);
+
+        $messagekey = $newvisible ? 'image_visibility_enabled' : 'image_visibility_disabled';
+        redirect($PAGE->url, get_string($messagekey, 'mod_imagecarousel'));
+    } else {
+        redirect($PAGE->url, get_string('image_visibility_toggle_error', 'mod_imagecarousel'));
+    }
 }
 
 // Obtener las imágenes desde la base de datos
@@ -46,9 +57,12 @@ $table = new html_table();
 $table->head = array(
     'ID',
     get_string('preview', 'mod_imagecarousel'),
-    get_string('image_url', 'mod_imagecarousel'),
+    // Mostrar ambas URLs (desktop y móvil) en columnas separadas
+    'URL imagen (Desktop)',
+    'URL imagen (Mobile)',
     get_string('text', 'mod_imagecarousel'),
     get_string('text_url', 'mod_imagecarousel'),
+    get_string('visibility', 'mod_imagecarousel'),
     get_string('actions', 'mod_imagecarousel')
 );
 $table->data = array();
@@ -77,6 +91,13 @@ foreach ($images as $index => $image) {
     
     // Agregar espacio entre los grupos de iconos
     $actions .= html_writer::span('&nbsp;&nbsp;');
+
+    // Botón para alternar visibilidad
+    $toggleurl = new moodle_url('/mod/imagecarousel/manage.php', array('id' => $cm->id, 'imageid' => $image->id, 'action' => 'togglevisibility'));
+    $toggleicon = !empty($image->visible)
+        ? $OUTPUT->pix_icon('t/hide', get_string('hide'))
+        : $OUTPUT->pix_icon('t/show', get_string('show'));
+    $actions .= html_writer::link($toggleurl, $toggleicon, ['class' => 'action-icon']);
     
     // Iconos de edición y eliminación existentes
     $actions .= html_writer::link(
@@ -168,16 +189,30 @@ foreach ($images as $index => $image) {
     
     // Preparar el texto y las URLs
     $text = isset($image->text) ? $image->text : '';
-    $image_url = !empty($image->url) ? html_writer::link($image->url, $image->url, ['target' => '_blank']) : '-';
+    // Construir URLs específicas de imágenes según origen
+    $desktop_url = '-';
+    if (!empty($image->desktop_image) && filter_var($image->desktop_image, FILTER_VALIDATE_URL)) {
+        $desktop_url = html_writer::link($image->desktop_image, $image->desktop_image, ['target' => '_blank']);
+    }
+    $mobile_url = '-';
+    if (!empty($image->mobile_image) && filter_var($image->mobile_image, FILTER_VALIDATE_URL)) {
+        $mobile_url = html_writer::link($image->mobile_image, $image->mobile_image, ['target' => '_blank']);
+    }
     $text_url = !empty($image->text_url) ? html_writer::link($image->text_url, $image->text_url, ['target' => '_blank']) : '-';
+
+    $visibilityBadge = !empty($image->visible)
+        ? html_writer::tag('span', get_string('visible', 'mod_imagecarousel'), ['class' => 'badge badge-success'])
+        : html_writer::tag('span', get_string('hidden', 'mod_imagecarousel'), ['class' => 'badge badge-secondary']);
     
     // Insertar la fila con la columna ID (1-based según el orden actual)
     $table->data[] = array(
         $index + 1,
         $preview,
-        $image_url,
+        $desktop_url,
+        $mobile_url,
         $text,
         $text_url,
+        $visibilityBadge,
         $actions
     );
 }

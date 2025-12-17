@@ -49,6 +49,7 @@
                 <FIELD NAME="text_padding" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Relleno del texto"/>
                 <FIELD NAME="text_border_radius" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Radio del borde del texto"/>
                 <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Orden de visualización"/>
+                <FIELD NAME="visible" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Indica si la imagen se muestra en el carrusel"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

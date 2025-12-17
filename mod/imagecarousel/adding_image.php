@@ -214,6 +214,115 @@ class mod_imagecarousel_add_form extends moodleform {
         $mform->setType('text_editor', PARAM_RAW);
         $mform->addHelpButton('text_editor', 'text', 'mod_imagecarousel');
         
+        // Contador de palabras
+        $mform->addElement('html', '
+            <div class="form-group row fitem">
+                <div class="col-md-3 col-form-label d-flex pb-0 pr-md-0">
+                    <label class="d-inline word-break">Contador de palabras</label>
+                </div>
+                <div class="col-md-9 form-inline align-items-start felement">
+                    <div id="word_counter" style="font-weight: bold; font-size: 16px; color: green;">
+                        Cargando contador...
+                    </div>
+                </div>
+            </div>
+            <script>
+                (function() {
+                    const MAX_WORDS = 70;
+                    let wordCounter = null;
+                    let checkInterval = null;
+                    let editorReady = false;
+                    
+                    function countWords(text) {
+                        if (!text || text.trim() === "") return 0;
+                        let words = text.trim().split(/\s+/).filter(word => word.length > 0);
+                        return words.length;
+                    }
+                    
+                    function updateWordCount() {
+                        if (!wordCounter) {
+                            wordCounter = document.getElementById("word_counter");
+                            if (!wordCounter) return;
+                        }
+                        
+                        let editorContent = document.querySelector("#id_text_editoreditable") 
+                                         || document.querySelector("[id*=text_editor][id*=editable]")
+                                         || document.querySelector(".editor_atto_content")
+                                         || document.querySelector("[data-fieldtype=editor] .atto_editable")
+                                         || document.querySelector("div[contenteditable=true][role=textbox]");
+                        
+                        if (!editorContent) {
+                            const iframes = document.querySelectorAll("iframe");
+                            for (let iframe of iframes) {
+                                try {
+                                    const iframeBody = iframe.contentDocument?.body;
+                                    if (iframeBody && iframeBody.innerText) {
+                                        editorContent = iframeBody;
+                                        break;
+                                    }
+                                } catch (e) {
+                                    // Ignorar errores de cross-origin
+                                }
+                            }
+                        }
+                        
+                        if (editorContent) {
+                            if (!editorReady) {
+                                editorReady = true;
+                                clearInterval(checkInterval);
+                                
+                                const observer = new MutationObserver(function() {
+                                    updateWordCount();
+                                });
+                                
+                                observer.observe(editorContent, { 
+                                    childList: true, 
+                                    subtree: true, 
+                                    characterData: true
+                                });
+                                
+                                editorContent.addEventListener("input", updateWordCount);
+                                editorContent.addEventListener("keyup", updateWordCount);
+                                editorContent.addEventListener("paste", function() {
+                                    setTimeout(updateWordCount, 100);
+                                });
+                            }
+                            
+                            let text = editorContent.innerText || editorContent.textContent || "";
+                            let wordCount = countWords(text);
+                            
+                            if (wordCount > MAX_WORDS) {
+                                let exceso = wordCount - MAX_WORDS;
+                                wordCounter.style.color = "red";
+                                wordCounter.innerHTML = "<strong style=\"color: red; font-size: 18px;\">- " + exceso + " palabras</strong> <br/>(Total: " + wordCount + " / 70)";
+                            } else {
+                                wordCounter.style.color = "green";
+                                wordCounter.innerHTML = "<strong style=\"color: green;\">" + wordCount + " / 70 palabras disponibles</strong>";
+                            }
+                        }
+                    }
+                    
+                    document.addEventListener("DOMContentLoaded", function() {
+                        wordCounter = document.getElementById("word_counter");
+                        
+                        updateWordCount();
+                        
+                        checkInterval = setInterval(function() {
+                            if (!editorReady) {
+                                updateWordCount();
+                            }
+                        }, 300);
+                        
+                        setTimeout(function() {
+                            if (checkInterval) {
+                                clearInterval(checkInterval);
+                            }
+                        }, 10000);
+                    });
+                })();
+            </script>
+        ');
+        
         $mform->addElement('text', 'text_url', get_string('text_url', 'mod_imagecarousel'), array('size' => '60'));
         $mform->setType('text_url', PARAM_URL);
         $mform->addHelpButton('text_url', 'text_url', 'mod_imagecarousel');
@@ -455,10 +564,10 @@ class mod_imagecarousel_add_form extends moodleform {
         $fs = get_file_storage();
         $usercontext = context_user::instance($USER->id);
         
-        // Validar el límite de 300 palabras en el campo de texto
+        // Validar el límite de 70 palabras en el campo de texto
         if (!empty($data['text_editor']['text'])) {
             $wordCount = str_word_count(strip_tags($data['text_editor']['text']));
-            if ($wordCount > 300) {
+            if ($wordCount > 70) {
                 $errors['text_editor'] = get_string('error_text_word_limit', 'mod_imagecarousel');
             }
         }
@@ -667,14 +776,29 @@ if ($mform->is_cancelled()) {
             $imagerecord->mobile_image_name = null;
         }
         
-        // Modificar la URL principal para asegurar que URLs externas tengan el protocolo correcto
-        if (isset($fromform->url) && !empty($fromform->url)) {
+        // Modificar la URL principal para asegurar que URLs externas tengan el protocolo correcto.
+        // Si el campo "url" viene vacío, usar la URL de "image_desktop" como fallback
+        // (o "image_mobile" si no hay desktop).
+        if (!empty($fromform->url)) {
             $url = $fromform->url;
-            // Verificar si la URL ya tiene un protocolo
             if (!preg_match('~^(?:f|ht)tps?://~i', $url)) {
-                // No tiene protocolo, verificar si parece una URL externa
                 if (preg_match('/^www\.|^\w+\.\w+/i', $url)) {
-                    // Es probablemente una URL externa, agregar https://
+                    $url = 'https://' . $url;
+                }
+            }
+            $imagerecord->url = $url;
+        } else if (!empty($fromform->image_desktop)) {
+            $url = $fromform->image_desktop;
+            if (!preg_match('~^(?:f|ht)tps?://~i', $url)) {
+                if (preg_match('/^www\.|^\w+\.\w+/i', $url)) {
+                    $url = 'https://' . $url;
+                }
+            }
+            $imagerecord->url = $url;
+        } else if (!empty($fromform->image_mobile)) {
+            $url = $fromform->image_mobile;
+            if (!preg_match('~^(?:f|ht)tps?://~i', $url)) {
+                if (preg_match('/^www\.|^\w+\.\w+/i', $url)) {
                     $url = 'https://' . $url;
                 }
             }

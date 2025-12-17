@@ -48,8 +48,8 @@ if (!empty($moduleinstance->intro)) {
     echo $OUTPUT->box(format_module_intro('imagecarousel', $moduleinstance, $cm->id), 'generalbox mod_introbox', 'imagecarouselintro');
 }
 
-// Obtener todas las imágenes
-$all_images = Images::getImages($moduleinstance->id);
+// Obtener solo las imágenes visibles
+$all_images = Images::getImages($moduleinstance->id, true);
 
 // Agregar depuración
 error_log("ImageCarousel: Cargando " . count($all_images) . " imágenes para el carrusel ID: " . $moduleinstance->id);

@@ -86,7 +86,7 @@ function imagecarousel_cm_info_view(cm_info $cm) {
     }
     
     // Obtener las imágenes desde la base de datos
-    $imagesobj = Images::getImages($moduleinstance->id);
+    $imagesobj = Images::getImages($moduleinstance->id, true);
     
     // Convertir los objetos a arrays para la plantilla
     $images = array();

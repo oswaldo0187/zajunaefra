@@ -54,6 +54,12 @@ $string['text_url'] = 'URL del texto';
 $string['actions'] = 'Acciones';
 $string['moveup'] = 'Mover arriba';
 $string['movedown'] = 'Mover abajo';
+$string['visibility'] = 'Visibilidad';
+$string['visible'] = 'Visible';
+$string['hidden'] = 'Oculta';
+$string['image_visibility_enabled'] = 'La imagen se mostrará en el carrusel';
+$string['image_visibility_disabled'] = 'La imagen ya no se mostrará en el carrusel';
+$string['image_visibility_toggle_error'] = 'No se pudo actualizar la visibilidad de la imagen';
 
 // Mensajes
 $string['position_warning'] = 'Nota: Al usar las flechas arriba/abajo podrás reordenar las imágenes. Los cambios se aplicarán de forma inmediata.';
@@ -186,7 +192,7 @@ $string['image_file_mobile'] = 'Subir imagen para móvil';
 $string['image_mobile'] = 'O usar URL para imagen móvil';
 $string['image_mobile_help'] = 'Aquí puedes ingresar una URL para la imagen para dispositivos móviles';
 $string['error_no_desktop_image'] = 'Debes subir una imagen o proporcionar una URL para la versión de escritorio';
-$string['error_text_word_limit'] = 'El texto no puede exceder las 300 palabras';
+$string['error_text_word_limit'] = 'El texto no puede exceder las 70 palabras';
 
 // Capacidades
 $string['imagecarousel:addinstance'] = 'Añadir un nuevo carrusel de imágenes';

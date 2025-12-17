@@ -245,6 +245,21 @@ function xmldb_imagecarousel_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2025101503, 'imagecarousel');
     }
 
+    // Agregar bandera de visibilidad por imagen
+    if ($oldversion < 2025121500) {
+        $table = new xmldb_table('imagecarousel_images');
+        $field = new xmldb_field('visible', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'sortorder');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Asegurar que todas las imágenes existentes queden visibles tras la actualización
+        $DB->set_field('imagecarousel_images', 'visible', 1);
+
+        upgrade_mod_savepoint(true, 2025121500, 'imagecarousel');
+    }
+
 
     return true;
 }

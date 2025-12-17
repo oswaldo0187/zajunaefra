@@ -26,8 +26,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_imagecarousel';
-$plugin->version = 2025101503; // Nueva versión que incluye campos de disponibilidad
-$plugin->release = 'v0.3.0';
+$plugin->version = 2025121500; // Visibilidad por imagen en el carrusel
+$plugin->release = 'v0.3.2';
 $plugin->requires = 2022112800;
 $plugin->maturity = MATURITY_ALPHA;
 $plugin->cron = 0;

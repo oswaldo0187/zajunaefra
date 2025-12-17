@@ -22,13 +22,16 @@ class Images {
      * Get carousel images from database
      * 
      * @param int $carouselid ID of the carousel
-     * @param bool $desktop Obsoleto: ahora devuelve todas las imágenes, se mantiene por compatibilidad
+     * @param bool $onlyvisible When true, returns only images marked as visible
      * @return array List of images
      */
-    public static function getImages($carouselid, $desktop = true) {
+    public static function getImages($carouselid, $onlyvisible = false) {
         global $DB;
         
         $params = array('carouselid' => $carouselid);
+        if ($onlyvisible) {
+            $params['visible'] = 1;
+        }
         
         // Obtener todas las imágenes ordenadas
         $images = $DB->get_records('imagecarousel_images', $params, 'sortorder ASC');

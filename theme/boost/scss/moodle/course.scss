@@ -1568,6 +1568,13 @@ $activity-add-hover: theme-color-level('primary', -10) !default;
             margin-top: map-get($spacers, 2);
         }
     }
+    // Ensure date labels wrap vertically at higher zoom/limited width.
+    @media (max-width: 1700px) {
+        .activity-dates {
+            flex-direction: column;
+            row-gap: 0.25rem;
+        }
+    }
     .activity-name-area {
         grid-area: name;
         // Prevent bootstrap strech-link from covering the inplace editable button using z-index.

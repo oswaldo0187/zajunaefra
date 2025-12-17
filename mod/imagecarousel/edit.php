@@ -203,10 +203,97 @@ class mod_imagecarousel_edit_form extends moodleform
             $mform->setType('image_mobile', PARAM_URL);
         }
 
-        // Campo para el texto
-        $mform->addElement('textarea', 'text', get_string('text', 'mod_imagecarousel'), array('rows' => 3, 'cols' => 60));
-        $mform->setType('text', PARAM_CLEANHTML);
-        $mform->addHelpButton('text', 'text', 'mod_imagecarousel');
+        // Editor de texto enriquecido (Atto)
+        $editoroptions = array(
+            'subdirs' => 0,
+            'maxbytes' => 0,
+            'maxfiles' => -1,
+            'changeformat' => 0,
+            'context' => $this->context,
+            'noclean' => 0,
+            'trusttext' => 0
+        );
+        $mform->addElement('editor', 'text_editor', get_string('text', 'mod_imagecarousel'), null, $editoroptions);
+        $mform->setType('text_editor', PARAM_RAW);
+        $mform->addHelpButton('text_editor', 'text', 'mod_imagecarousel');
+
+        // Contador de palabras (máximo 100) bajo el editor
+        $mform->addElement('html', <<<'HTML'
+            <div class="form-group row fitem">
+                <div class="col-md-3 col-form-label d-flex pb-0 pr-md-0">
+                    <label class="d-inline word-break">Contador de palabras</label>
+                </div>
+                <div class="col-md-9 form-inline align-items-start felement">
+                    <div id="word_counter" style="font-weight: bold; font-size: 16px; color: green;">
+                        Cargando contador...
+                    </div>
+                </div>
+            </div>
+            <script>
+                (function() {
+                    const MAX_WORDS = 70;
+                    let wordCounter = null;
+
+                    function countWords(text) {
+                        if (!text) return 0;
+                        const cleaned = text
+                            .replace(/\u00A0/g, ' ')
+                            .replace(/[\s\n\r\t]+/g, ' ')
+                            .trim();
+                        if (cleaned === '') return 0;
+                        return cleaned.split(/\s+/).length;
+                    }
+
+                    function updateWordCount() {
+                        if (!wordCounter) {
+                            wordCounter = document.getElementById('word_counter');
+                            if (!wordCounter) return;
+                        }
+
+                        let editorContent = document.querySelector('#id_text_editoreditable') 
+                                         || document.querySelector('[id*=text_editor][id*=editable]')
+                                         || document.querySelector('.editor_atto_content')
+                                         || document.querySelector('[data-fieldtype=editor] .atto_editable')
+                                         || document.querySelector('div[contenteditable=true][role=textbox]');
+
+                        if (!editorContent) {
+                            const iframes = document.querySelectorAll('iframe');
+                            for (let iframe of iframes) {
+                                try {
+                                    const iframeBody = iframe.contentDocument && iframe.contentDocument.body;
+                                    if (iframeBody && iframeBody.innerText) {
+                                        editorContent = iframeBody;
+                                        break;
+                                    }
+                                } catch (e) {
+                                    // Ignorar errores de cross-origin
+                                }
+                            }
+                        }
+
+                        if (!editorContent) return;
+
+                        const textContent = editorContent.innerText || '';
+                        const currentWords = countWords(textContent);
+                        
+                        wordCounter.innerText = `${currentWords} / ${MAX_WORDS} palabras`;
+                        wordCounter.style.color = currentWords > MAX_WORDS ? 'red' : 'green';
+                    }
+
+                    document.addEventListener('DOMContentLoaded', function() {
+                        updateWordCount();
+                        setInterval(updateWordCount, 500);
+                        const editable = document.querySelector('#id_text_editoreditable');
+                        if (editable) {
+                            editable.addEventListener('input', updateWordCount);
+                            editable.addEventListener('keyup', updateWordCount);
+                            editable.addEventListener('change', updateWordCount);
+                        }
+                    });
+                })();
+            </script>
+HTML
+        );
 
         // Campo para la URL del texto
         $mform->addElement('text', 'text_url', get_string('text_url', 'mod_imagecarousel'), array('size' => '60'));
@@ -486,15 +573,27 @@ class mod_imagecarousel_edit_form extends moodleform
     public function validation($data, $files)
     {
         $errors = parent::validation($data, $files);
-        
-        // Validar el límite de 300 palabras en el campo de texto
-        if (!empty($data['text'])) {
-            $wordCount = str_word_count(strip_tags($data['text']));
-            if ($wordCount > 300) {
-                $errors['text'] = get_string('error_text_word_limit', 'mod_imagecarousel');
+
+        // Validar el límite de 70 palabras en el editor de texto
+        $raw = '';
+        if (!empty($data['text_editor']) && is_array($data['text_editor']) && !empty($data['text_editor']['text'])) {
+            $raw = $data['text_editor']['text'];
+        } else if (!empty($data['text'])) {
+            $raw = $data['text'];
+        }
+
+        if ($raw !== '') {
+            $clean = strip_tags($raw);
+            $clean = preg_replace("/\xC2\xA0/", ' ', $clean); // NBSP -> space
+            $clean = preg_replace('/[\s\n\r\t]+/', ' ', $clean);
+            $clean = trim($clean);
+            $wordCount = ($clean === '') ? 0 : preg_split('/\s+/', $clean);
+            $wordCount = is_array($wordCount) ? count($wordCount) : 0;
+            if ($wordCount > 70) {
+                $errors['text_editor'] = get_string('error_text_word_limit', 'mod_imagecarousel');
             }
         }
-        
+
         return $errors;
     }
 }
@@ -548,7 +647,11 @@ if ($imageid > 0) {
     $formdata['action'] = 'edit';
 
     // Preparar campos de texto y personalización
-    $formdata['text'] = $image->text ?? '';
+    // Inicializar editor con el texto existente
+    $formdata['text_editor'] = array(
+        'text' => $image->text ?? '',
+        'format' => FORMAT_HTML
+    );
     $formdata['text_url'] = $image->text_url ?? '';
     $formdata['text_color'] = $image->text_color ?? get_string('text_color', 'mod_imagecarousel');
     $formdata['text_size'] = $image->text_size ?? get_string('default_text_size', 'mod_imagecarousel');
@@ -572,6 +675,18 @@ if ($imageid > 0) {
         'italic' => $image->text_style_italic ?? 0,
         'underline' => $image->text_style_underline ?? 0
     );
+
+    // Prefill de URLs si el origen fue una URL (de lo contrario, dejar en blanco)
+    if (!empty($image->desktop_image) && filter_var($image->desktop_image, FILTER_VALIDATE_URL)) {
+        $formdata['image_desktop'] = $image->desktop_image;
+    } else {
+        $formdata['image_desktop'] = '';
+    }
+    if (!empty($image->mobile_image) && filter_var($image->mobile_image, FILTER_VALIDATE_URL)) {
+        $formdata['image_mobile'] = $image->mobile_image;
+    } else {
+        $formdata['image_mobile'] = '';
+    }
 
     // Mantener la URL principal (verificar si tiene un nuevo valor)
     if (isset($formdata['url']) && !empty($formdata['url'])) {
@@ -659,6 +774,9 @@ if ($mform->is_cancelled()) {
                 }
             }
 
+            // Nota: El prellenado de los campos de URL se realiza antes de set_data()
+            // en la fase de inicialización del formulario. No modificar $formdata aquí.
+
             // Mantener la URL principal o actualizarla (verificar si tiene un nuevo valor)
             if (isset($formdata->url) && !empty($formdata->url)) {
                 $url = $formdata->url;
@@ -676,7 +794,9 @@ if ($mform->is_cancelled()) {
             }
 
             // Actualizar los campos de texto y personalización
-            $imagerecord->text = $formdata->text;
+            $imagerecord->text = isset($formdata->text_editor) && is_array($formdata->text_editor)
+                ? ($formdata->text_editor['text'] ?? '')
+                : ($formdata->text ?? '');
 
             // Modificar la URL del texto para asegurar que URLs externas tengan el protocolo correcto
             if (isset($formdata->text_url) && !empty($formdata->text_url)) {

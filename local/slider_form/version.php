@@ -26,6 +26,6 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_slider_form';
 $plugin->release = '0.3.2';
-$plugin->version = 2025101501 /*2025071101*/;
+$plugin->version = 2025110701; // Align with installed version to avoid downgrade warning
 $plugin->requires = 2022112800;
 $plugin->maturity = MATURITY_ALPHA;
