@@ -155,8 +155,9 @@ class store extends external_api {
         $data = [];
         parse_str($formdata, $data);
 
-        // Grade.
-        $gradeitem->store_grade_from_formdata($gradeduser, $USER, (object) $data);
+        // Grade and feedback.
+        $formobject = (object) $data;
+        $gradeitem->store_grade_from_formdata($gradeduser, $USER, $formobject);
         $hasgrade = $gradeitem->user_has_grade($gradeduser);
 
         // Notify.

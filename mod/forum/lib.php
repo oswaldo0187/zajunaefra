@@ -779,15 +779,17 @@ function forum_update_grades($forum, $userid = 0): void {
     $forumgrades = null;
     if ($forum->grade_forum) {
         $sql = <<<EOF
-SELECT
-    g.userid,
-    0 as datesubmitted,
-    g.grade as rawgrade,
-    g.timemodified as dategraded
-  FROM {forum} f
-  JOIN {forum_grades} g ON g.forum = f.id
- WHERE f.id = :forumid
-EOF;
+    SELECT
+        g.userid,
+        0 as datesubmitted,
+        g.grade as rawgrade,
+        g.timemodified as dategraded,
+        g.feedback,
+        g.feedbackformat
+      FROM {forum} f
+      JOIN {forum_grades} g ON g.forum = f.id
+     WHERE f.id = :forumid
+    EOF;
 
         $params = [
             'forumid' => $forum->id,
@@ -802,6 +804,10 @@ EOF;
         if ($grades = $DB->get_recordset_sql($sql, $params)) {
             foreach ($grades as $userid => $grade) {
                 if ($grade->rawgrade != -1) {
+                    // Pass through feedback so it appears in the grader report.
+                    if (!isset($grade->feedbackformat)) {
+                        $grade->feedbackformat = FORMAT_HTML;
+                    }
                     $forumgrades[$userid] = $grade;
                 }
             }

@@ -516,6 +516,12 @@ abstract class component_gradeitem {
             }
         }
 
+        // Handle feedback if present.
+        if (isset($formdata->feedback)) {
+            $grade->feedback = $formdata->feedback;
+            $grade->feedbackformat = FORMAT_HTML;
+        }
+
         return $this->store_grade($grade);
     }
 

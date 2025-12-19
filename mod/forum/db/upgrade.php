@@ -206,5 +206,29 @@ function xmldb_forum_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2025070100, 'forum');
     }
 
+    if ($oldversion < 2025121800) {
+        // Add feedback and feedbackformat fields to forum_grades table.
+        $table = new xmldb_table('forum_grades');
+
+        // Define field feedback to be added to forum_grades.
+        $field = new xmldb_field('feedback', XMLDB_TYPE_TEXT, null, null, null, null, null, 'grade');
+
+        // Conditionally launch add field feedback.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field feedbackformat to be added to forum_grades.
+        $field = new xmldb_field('feedbackformat', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'feedback');
+
+        // Conditionally launch add field feedbackformat.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Forum savepoint reached.
+        upgrade_mod_savepoint(true, 2025121800, 'forum');
+    }
+
     return true;
 }

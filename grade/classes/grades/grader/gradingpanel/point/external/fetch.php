@@ -178,6 +178,7 @@ class fetch extends external_api {
                 'gradedby' => $gradername,
                 'timecreated' => $grade->timecreated,
                 'timemodified' => $grade->timemodified,
+                'feedback' => isset($grade->feedback) ? $grade->feedback : '',
             ],
             'warnings' => [],
         ];
@@ -200,6 +201,7 @@ class fetch extends external_api {
                 'gradedby' => new external_value(PARAM_RAW, 'The assumed grader of this grading instance'),
                 'timecreated' => new external_value(PARAM_INT, 'The time that the grade was created'),
                 'timemodified' => new external_value(PARAM_INT, 'The time that the grade was last updated'),
+                'feedback' => new external_value(PARAM_RAW, 'Feedback for the student', VALUE_OPTIONAL),
             ]),
             'warnings' => new external_warnings(),
         ]);

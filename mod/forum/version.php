@@ -24,6 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025111901;       // Align with installed DB version to avoid downgrade errors.
+$plugin->version   = 2025121801;       // Trigger upgrade to add feedback fields.
 $plugin->requires  = 2023100400;       // Requires this Moodle version.
 $plugin->component = 'mod_forum';      // Full name of the plugin (used for diagnostics)

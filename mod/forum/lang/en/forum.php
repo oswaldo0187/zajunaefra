@@ -564,6 +564,7 @@ $string['privacy:metadata:forum_grades'] = 'Grade data for the forum';
 $string['privacy:metadata:forum_grades:forum'] = 'The forum that was graded';
 $string['privacy:metadata:forum_grades:grade'] = 'The grade awarded';
 $string['privacy:metadata:forum_grades:userid'] = 'The user who was graded';
+$string['privacy:metadata:forum_grades:feedback'] = 'Feedback provided for the student\'s forum work';
 $string['privacy:metadata:forum_posts'] = 'Information about the digest preferences for each forum.';
 $string['privacy:metadata:forum_posts:created'] = 'The time that the post was created.';
 $string['privacy:metadata:forum_posts:discussion'] = 'The discussion that the post is in.';

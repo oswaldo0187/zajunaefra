@@ -140,6 +140,7 @@ class provider implements
             'userid' => 'privacy:metadata:forum_grades:userid',
             'forum' => 'privacy:metadata:forum_grades:forum',
             'grade' => 'privacy:metadata:forum_grades:grade',
+            'feedback' => 'privacy:metadata:forum_grades:feedback',
         ], 'privacy:metadata:forum_grades');
 
         // Forum posts can be tagged and rated.
